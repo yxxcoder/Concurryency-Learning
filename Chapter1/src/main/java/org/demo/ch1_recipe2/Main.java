@@ -34,6 +34,7 @@ public class Main {
         status=new Thread.State[10];
         for (int i=0; i<10; i++){
             threads[i]=new Thread(new Calculator(i));
+            // 被乘数是偶数的线程优先级高
             if ((i%2)==0){
                 threads[i].setPriority(Thread.MAX_PRIORITY);
             } else {
