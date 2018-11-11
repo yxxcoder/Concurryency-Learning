@@ -8,30 +8,25 @@ import java.io.PrintWriter;
 import java.lang.Thread.State;
 
 /**
- * Main class of the example
- * @author
+ * 线程信息的获取和设置
+ * @author yxxcoder
  * @create 2018-11-09 下午11:06
  **/
 public class Main {
 
-    /**
-     * Main method of the example
-     * @param args
-     */
     public static void main(String[] args) {
 
-        // Thread priority infomation
-        System.out.printf("Minimum Priority: %s\n",Thread.MIN_PRIORITY);
-        System.out.printf("Normal Priority: %s\n",Thread.NORM_PRIORITY);
-        System.out.printf("Maximun Priority: %s\n",Thread.MAX_PRIORITY);
+        // 线程的优先级信息
+        // 线程的优先级是从1到10 1为最低优先级
+        System.out.printf("Minimum Priority: %s\n", Thread.MIN_PRIORITY);
+        System.out.printf("Normal Priority: %s\n", Thread.NORM_PRIORITY);
+        System.out.printf("Maximun Priority: %s\n", Thread.MAX_PRIORITY);
 
-        Thread threads[];
-        Thread.State status[];
 
         // Launch 10 threads to do the operation, 5 with the max
         // priority, 5 with the min
-        threads=new Thread[10];
-        status=new Thread.State[10];
+        Thread[] threads = new Thread[10];
+        Thread.State[] status = new Thread.State[10];
         for (int i=0; i<10; i++){
             threads[i]=new Thread(new Calculator(i));
             // 被乘数是偶数的线程优先级高
