@@ -23,10 +23,9 @@ public class Main {
         System.out.printf("Maximun Priority: %s\n", Thread.MAX_PRIORITY);
 
 
-        // Launch 10 threads to do the operation, 5 with the max
-        // priority, 5 with the min
         Thread[] threads = new Thread[10];
         Thread.State[] status = new Thread.State[10];
+        // 5个线程的优先级最高 5个线程优先级最低
         for (int i=0; i<10; i++){
             threads[i]=new Thread(new Calculator(i));
             // 被乘数是偶数的线程优先级高
@@ -39,19 +38,21 @@ public class Main {
         }
 
 
-        // Wait for the finalization of the threads. Meanwhile,
-        // write the status of those threads in a file
+        // 将线程的状态演变写入文件中
         try (FileWriter file = new FileWriter(".\\data\\log.txt");PrintWriter pw = new PrintWriter(file);){
 
+            // 线程执行前的状态
             for (int i=0; i<10; i++){
                 pw.println("Main : Status of Thread "+i+" : "+threads[i].getState());
                 status[i]=threads[i].getState();
             }
 
+            // 启动所有线程
             for (int i=0; i<10; i++){
                 threads[i].start();
             }
 
+            // 等待线程全部执行结束
             boolean finish=false;
             while (!finish) {
                 for (int i=0; i<10; i++){
@@ -73,7 +74,7 @@ public class Main {
     }
 
     /**
-     *  This method writes the state of a thread in a file
+     *  将线程的状态信息写入到文件中
      * @param pw : PrintWriter to write the data
      * @param thread : Thread whose information will be written
      * @param state : Old state of the thread
