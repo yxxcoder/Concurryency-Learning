@@ -39,7 +39,7 @@ public class Main {
 
 
         // 将线程的状态演变写入文件中
-        try (FileWriter file = new FileWriter(".\\data\\log.txt");PrintWriter pw = new PrintWriter(file);){
+        try (FileWriter file = new FileWriter("log.txt");PrintWriter pw = new PrintWriter(file);){
 
             // 线程执行前的状态
             for (int i=0; i<10; i++){
