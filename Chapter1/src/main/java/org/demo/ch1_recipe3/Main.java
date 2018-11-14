@@ -27,6 +27,9 @@ public class Main {
 
         // 中断线程
         task.interrupt();
+
+        // 检查线程是否已被中断
+        System.out.println("Thread is interrupted: " + task.isInterrupted());
     }
 
 }
