@@ -1,4 +1,4 @@
-package org.demo.ch1_recipe1.task;
+package org.demo.chapter1.recipe1.task;
 
 import java.util.concurrent.TimeUnit;
 

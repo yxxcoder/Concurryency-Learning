@@ -1,4 +1,4 @@
-package org.demo.ch1_recipe2.task;
+package org.demo.chapter1.recipe2.task;
 
 /**
  * 打印乘法表

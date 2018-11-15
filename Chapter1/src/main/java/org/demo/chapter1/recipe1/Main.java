@@ -1,6 +1,6 @@
-package org.demo.ch1_recipe1;
+package org.demo.chapter1.recipe1;
 
-import org.demo.ch1_recipe1.task.Calculator;
+import org.demo.chapter1.recipe1.task.Calculator;
 
 /**
  * 线程的创建和运行

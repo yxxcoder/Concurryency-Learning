@@ -1,4 +1,4 @@
-package org.demo.ch1_recipe3.task;
+package org.demo.chapter1.recipe3.task;
 
 
 /**

@@ -1,6 +1,6 @@
-package org.demo.ch1_recipe2;
+package org.demo.chapter1.recipe2;
 
-import org.demo.ch1_recipe2.task.Calculator;
+import org.demo.chapter1.recipe2.task.Calculator;
 
 import java.io.FileWriter;
 import java.io.IOException;
