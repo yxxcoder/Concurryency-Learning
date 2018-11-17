@@ -9,8 +9,6 @@ import java.lang.Thread.State;
 
 /**
  * 线程信息的获取和设置
- * @author yxxcoder
- * @create 2018-11-09 下午11:06
  **/
 public class Main {
 

@@ -4,8 +4,6 @@ import org.demo.chapter1.recipe1.task.Calculator;
 
 /**
  * 线程的创建和运行
- * @author yuxuan
- * @create 2018-06-01 上午12:16
  **/
 public class Main {
     public static void main(String[] args) {

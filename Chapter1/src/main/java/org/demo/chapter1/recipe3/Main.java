@@ -4,7 +4,7 @@ import org.demo.chapter1.recipe3.task.PrimeGenerator;
 import java.util.concurrent.TimeUnit;
 
 /**
- *  线程的中断
+ * 线程的中断
  */
 public class Main {
 
