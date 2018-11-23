@@ -14,6 +14,11 @@ public class Main {
 
         // 设置线程的运行时异常处理器
         thread.setUncaughtExceptionHandler(new ExceptionHandler());
+
+        // 也可以为所有线程对象设置默认异常处理器
+        // 未查找到线程对象的异常处理器时会查找线程对象所在的线程组的异常处理器，还找不到时就会查找默认异常处理器
+        // Thread.setDefaultUncaughtExceptionHandler();
+
         // 启动线程
         thread.start();
 
