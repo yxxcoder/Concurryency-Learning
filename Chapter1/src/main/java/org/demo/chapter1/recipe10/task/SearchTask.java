@@ -5,20 +5,15 @@ import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Class that simulates a search operation
- *
+ * 模拟搜索操作
  */
 public class SearchTask implements Runnable {
 
     /**
-     * Store the name of the Thread if this Thread finish and is not interrupted
+     * 如果此线程完成且未中断，则存储线程的名称
      */
     private Result result;
 
-    /**
-     * Constructor of the class
-     * @param result Parameter to initialize the object that stores the results
-     */
     public SearchTask(Result result) {
         this.result=result;
     }
