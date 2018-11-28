@@ -1,8 +1,7 @@
 package org.demo.chapter1.recipe10.task;
 
 /**
- * Class that stores the result of the search
- *
+ * 存储执行结束的线程名称
  */
 public class Result {
 
@@ -28,4 +27,3 @@ public class Result {
     }
 
 }
-

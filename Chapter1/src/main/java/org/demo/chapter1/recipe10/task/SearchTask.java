@@ -24,17 +24,20 @@ public class SearchTask implements Runnable {
         System.out.printf("Thread %s: Start\n",name);
         try {
             doTask();
+            // 任务执行完成，记录线程名称
             result.setName(name);
         } catch (InterruptedException e) {
+            // 线程中断，打印线程信息
             System.out.printf("Thread %s: Interrupted\n",name);
             return;
         }
+        // 线程执行结束，打印信息
         System.out.printf("Thread %s: End\n",name);
     }
 
     /**
-     * Method that simulates the search operation
-     * @throws InterruptedException Throws this exception if the Thread is interrupted
+     * 模拟搜索操作
+     * @throws InterruptedException 如果线程被中断抛出此异常
      */
     private void doTask() throws InterruptedException {
         Random random=new Random((new Date()).getTime());
@@ -44,4 +47,3 @@ public class SearchTask implements Runnable {
     }
 
 }
-
