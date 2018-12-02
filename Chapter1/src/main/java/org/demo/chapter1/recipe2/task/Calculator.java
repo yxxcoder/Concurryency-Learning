@@ -2,8 +2,6 @@ package org.demo.chapter1.recipe2.task;
 
 /**
  * 打印乘法表
- * @author
- * @create 2018-11-09 下午11:08
  **/
 public class Calculator implements Runnable {
 

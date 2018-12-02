@@ -4,8 +4,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * 打印乘法表
- * @author yuxuan
- * @create 2018-06-01 上午12:13
  **/
 public class Calculator implements Runnable {
 
