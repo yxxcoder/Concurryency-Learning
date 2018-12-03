@@ -160,3 +160,65 @@ public class Main {
 }
 ```
 
+
+
+## 6. 等待线程的终止
+
+在一些情形下，我们必须等待线程的终止。例如，我们的程序在执行其他的任务时，必须先初始化一些必须的资源。可以使用线程来完成这些初始化任务，等待线程终止，再执行程序的其他任务
+
+为了达到这个目的，我们使用Thread类的join()方法。当一个线程对象的join()方法被调用时，**调用它的线程将被挂起**，直到这个线程对象完成它的任务
+
+```java
+public class Main {
+    /**
+     * 创建并启动两个线程，等待他们终止
+     */
+    public static void main(String[] args) {
+        // 创建并启动DataSourceLoader线程对象
+        DataSourcesLoader dsLoader = new DataSourcesLoader();
+        Thread thread1 = new Thread(dsLoader,"DataSourceThread");
+        thread1.start();
+        // 创建并启动NetworkConnectionsLoader线程
+        NetworkConnectionsLoader ncLoader = new NetworkConnectionsLoader();
+        Thread thread2 = new Thread(ncLoader,"NetworkConnectionLoader");
+        thread2.start();
+      
+        // 等待两个线程终止
+        try {
+            thread1.join();
+            thread2.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        // 主线程执行结束
+        System.out.printf("Main: Configuration has been loaded: %s\n",new Date());
+    }
+}
+```
+
+
+
+Java提供了另外两种形式的join()方法:
+
+```java
+join (long milliseconds)
+join (long milliseconds, long nanos)
+```
+
+当一个线程调用其他某个线程的join()方法时，如果使用的是第一种join()方式，那么它不必等到被调用线程运行终止，**如果参数指定的毫秒时钟已经到达，它将继续运行**。例如，thread1中有这样的代码thread2.join(1000)，thread1 将挂起运行，直到满足下面两个条件之一:
+
+- thread2运行已经完成;
+- 时钟已经过去1000毫秒。
+
+当两个条件中的任何一条成立时，join()方法将返回
+
+第二种join()方法跟第一种相似，只是需要接受毫秒和纳秒两个参数
+
+
+
+## 7. 守护线程的创建和运行
+
+
+
+## 8. 线程中不可控异常的处理
+
