@@ -218,7 +218,107 @@ join (long milliseconds, long nanos)
 
 ## 7. 守护线程的创建和运行
 
+Java里有一种特殊的线程叫做守护(Daemon)线程。这种线程的优先级很低，通常来说，当同一个应用程序里没有其他的线程运行的时候，守护线程才运行。当守护线程是程序中唯一运行的线程时， 守护线程执行结束后，JVM也就结束了这个程序
+
+因为这种特性，守护线程通常被用来做为同一程序中普通线程(也称为用户线程)的服务提供者。它们通常是无限循环的，以等待服务请求或者执行线程的任务。它们不能做重要的工作，因为我们不可能知道守护线程什么时候能够获取CPU时钟，并且，在没有其他线程运行的时候，守护线程随时可能结束。一个典型的守护线程是Java的垃圾回收器(Garbage Collector)
+
+```java
+public class ATask extends Thread {
+	public CleanerTask() {
+		// 把当前线程设置为守护线程
+		setDaemon(true);
+	}
+    @Override
+	public void run() {
+		// do something
+	}
+}
+```
+
+
+
+**setDaemon()方法只能在start()方法被调用之前设置**。一旦线程开始运行，将不能再修改守护状态
+
+isDaemon()方法被用来检查一个线程是不是守护线程，返回值true 表示这个线程是守护线程，false 表示这个线程是用户线程
+
 
 
 ## 8. 线程中不可控异常的处理
+
+在Java中有两种异常：
+
+- 非运行时异常(Checked Exception)：这种异常必须在方法声明的throws语句指定，或者在方法体内捕获。例如:IOException 和ClassNotFoundException
+- 运行时异常(Unchecked Exception)：这种异常不必在方法声明中指定，也不需要在方法体中捕获。例如: NumberFormatException
+
+因为run()方法不支持throws语句，所以当线程对象的run()方法抛出非运行异常时，我们必须捕获并且处理它们。当运行时异常从run()方法中抛出时，默认行为是在控制台输出堆栈记录并且退出程序
+
+好在，Java提供给一种在线程对象里捕获和处理运行时异常的一种机制
+
+```java
+public class Main {
+    public static void main(String[] args) {
+        Thread thread=new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // 故意抛出异常
+                int numero=Integer.parseInt("TTT");
+            }
+        });
+        // 设置线程的运行时异常处理器
+        thread.setUncaughtExceptionHandler(new ExceptionHandler());
+
+        // 也可以为所有线程对象设置默认异常处理器
+        // 未查找到线程对象的异常处理器时会查找线程对象所在的线程组的异常处理器，还找不到时就会查找默认异常处理器
+        // Thread.setDefaultUncaughtExceptionHandler();
+
+        // 启动线程
+        thread.start();
+
+        try {
+            // 等待线程执行结束
+            thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.printf("Thread has finished\n");
+    }
+}
+
+/**
+ * 用于处理线程中的运行时异常(Unchecked Exception)
+ */
+public class ExceptionHandler implements UncaughtExceptionHandler {
+    /**
+     * 处理线程中的运行时异常
+     * @param t 抛出异常的线程对象
+     * @param e 线程抛出的运行时异常对象
+     */
+    @Override
+    public void uncaughtException(Thread t, Throwable e) {
+        System.out.printf("An exception has been captured\n");
+        System.out.printf("Thread: %s\n",t.getId());
+        System.out.printf("Exception: %s: %s\n",e.getClass().getName(),e.getMessage());
+        System.out.printf("Stack Trace: \n");
+        e.printStackTrace(System.out);
+        System.out.printf("Thread status: %s\n",t.getState());
+    }
+}
+```
+
+Thread类的静态方法`setDefaultUncaughtExceptionHandler()`也可以处理未捕获到的异常。这个方法在应用程序中为所有的线程对象创建了一个异常处理器
+
+当线程抛出一个未捕获到的异常时，JVM将为异常寻找以下三种可能的处理器：
+
+​	首先，它查找线程对象的未捕获异常处理器；如果找不到，JVM继续查找线程对象所在的线程组(ThreadGroup)的未捕获异常处理器（后面会用到）；如果还是找不到，JVM将继续查找默认的未捕获异常处理器；如果没有一个处理器存在，JVM则将堆栈异常记录打印到控制台，并退出程序
+
+
+
+## 9. 线程局部变量的使用
+
+## 10.线程的分组
+
+## 11. 线程组中不可控异常的处理
+
+## 12. 使用工程类创建线程
+
 
