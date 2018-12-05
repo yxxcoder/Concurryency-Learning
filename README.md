@@ -1,7 +1,7 @@
 # Java并发编程学习笔记
 本项目整理自《Java7并发编程实战手册》，感兴趣的话推荐阅读原著
 
-### 第一章 线程管理
+### [第一章 线程管理](https://github.com/yxxcoder/Concurryency-Learning/tree/master/Chapter1)
 本章内容包括：
 - 线程的创建和运行
 - 线程信息的获取和设置
