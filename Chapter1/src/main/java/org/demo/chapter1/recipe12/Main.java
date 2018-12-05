@@ -1,7 +1,7 @@
 package org.demo.chapter1.recipe12;
 
 /**
- * 使用工程类创建线程
+ * 使用工厂类创建线程
  */
 public class Main {
 

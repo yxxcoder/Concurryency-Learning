@@ -315,10 +315,253 @@ Thread类的静态方法`setDefaultUncaughtExceptionHandler()`也可以处理未
 
 ## 9. 线程局部变量的使用
 
+当某个对象的属性不需要被所有的线程共享，可以使用Java并发API提供的线程局部变量( Thread-Local Variable)
+
+```java
+public class SafeMain {
+    /**
+     * 创建三个线程运行SafeTask任务
+     */
+    public static void main(String[] args) {
+        SafeTask task=new SafeTask();
+        for (int i=0; i<3; i++){
+            Thread thread=new Thread(task);
+            try {
+                TimeUnit.SECONDS.sleep(2);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            thread.start();
+        }
+    }
+}
+
+public class SafeTask implements Runnable {
+    /**
+     * ThreadLocal存储的数据可在线程间共享
+     */
+    private static ThreadLocal<Date> startDate= new ThreadLocal<Date>() {
+        @Override
+        protected Date initialValue(){
+            return new Date();
+        }
+    };
+
+    /**
+     * 打印ThreadLocal保存的时间到控制台，休息若干秒后再次打印ThreadLocal中已保存的时间对象
+     */
+    @Override
+    public void run() {
+        System.out.printf("Starting Thread: %s : %s\n",Thread.currentThread().getId(),startDate.get());
+        try {
+            TimeUnit.SECONDS.sleep((int)Math.rint(Math.random()*10));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        System.out.printf("Thread Finished: %s : %s\n",Thread.currentThread().getId(),startDate.get());
+    }
+}
+
+```
+
+线程局部变量也提供了remove()方法， 用来为访问这个变量的线程删除已经存储的值。Java并发API包含了`InheritableThreadLocal` 类，**如果一个线程是从其他某个线程中创建的，这个类将提供继承的值**。如果一个线程A在线程局部变量已有值，当它创建其他某个线程B时，线程B的线程局部变量将跟线程A是一样的。你可以覆盖`childValue()`方法，这个方法用来初始化子线程在线程局部变量中的值。它使用父线程在线程局部变量中的值作为传入参数
+
+
+
 ## 10.线程的分组
+
+Java并发API提供线程分组的能力。这允许我们把一个组的线程当成一个单一的单元，对组内线程对象进行访问并操作它们。例如，对于一些执行同样任务的线程，想控制它们，不管多少线程在运行，只需要一个单一的调用，所有这些线程的运行都会被中断
+
+Java提供ThreadGroup类表示一组线程。 线程组可以包含线程对象，也可以包含其他的线程组对象，它是一个树形结构
+
+```java
+// 创建标识为Searcher的线程对象
+ThreadGroup threadGroup = new ThreadGroup("Searcher");
+// 创建线程，第一个参数是ThreadGroup对象，第二个参数是Runnable对象
+Thread thread=new Thread(threadGroup, searchTask);
+
+// 获取线程组包含的线程数目
+System.out.printf("Number of Threads: %d\n",threadGroup.activeCount());
+// 打印线程组对象信息
+threadGroup.list();
+
+Thread[] threads=new Thread[threadGroup.activeCount()];
+// 获取线程组包含的线程列表
+threadGroup.enumerate(threads);
+
+// 中断线程组中为执行完成的线程
+threadGroup.interrupt();
+```
+
+
 
 ## 11. 线程组中不可控异常的处理
 
+建立一个方法来捕获线程组中的任何线程对象抛出的非捕获异常
+
+```java
+/**
+ * 创建MyThreadGroup继承ThreadGroup并重写uncaughtException方法
+ */
+public class MyThreadGroup extends ThreadGroup {
+    /**
+     * 声明带参数的构造方法
+     * @param name
+     */
+    public MyThreadGroup(String name) {
+        super(name);
+    }
+
+    /**
+     * 覆盖父类的处理uncaughtException方法，处理未捕获的异常
+     */
+    @Override
+    public void uncaughtException(Thread t, Throwable e) {
+        // 打印异常线程的id
+        System.out.printf("The thread %s has thrown an Exception\n", t.getId());
+        // 打印异常堆栈信息
+        e.printStackTrace(System.out);
+        // 中断线程组的其余线程
+        System.out.printf("Terminating the rest of the Threads\n");
+        interrupt();
+    }
+}
+/**
+ * 创建线程组并创建两个线程放入该线程组中
+ * 当线程抛出未捕获异常时，该线程所在线程组的异常处理器将捕获该异常
+ */
+public class Main {
+    public static void main(String[] args) {
+
+        // 创建线程组
+        MyThreadGroup threadGroup=new MyThreadGroup("MyThreadGroup");
+        // 创建两个线程放入该线程组中
+        Task task=new Task();
+        for (int i=0; i<2; i++){
+            Thread t=new Thread(threadGroup,task);
+            t.start();
+        }
+    }
+}
+```
+
+当线程抛出一个未捕获到的异常时，JVM将为异常寻找以下三种可能的处理器：
+
+​	首先，它查找线程对象的未捕获异常处理器；如果找不到，JVM继续查找线程对象所在的线程组(ThreadGroup)的未捕获异常处理器（如本节所示）；如果还是找不到，JVM将继续查找默认的未捕获异常处理器；如果没有一个处理器存在，JVM则将堆栈异常记录打印到控制台，并退出程序
+
+
+
 ## 12. 使用工程类创建线程
 
+工厂模式是面向对象编程中最常使用的模式之一。它是一个创建者模式，使用一个类为其他的一个或者多个类创建对象。当我们要为这些类创建对象时，不需再使用new构造器，而使用工厂类
 
+使用工厂类，可以将对象的创建集中化，这样做有以下的好处：
+
+- 更容易修改类，或者改变创建对象的方式
+
+- 更容易为有限资源限制创建对象的数目。例如，我们可以限制一个类型的对象不多于n个
+
+- 更容易为创建的对象生成统计数据
+
+Java提供了ThreadFactory 接口，这个接口实现了线程对象工厂。Java并发API的高级工具类也使用了线程工厂创建线程
+
+```java
+/**
+ * 实现ThreadFactory接口创建一个简单的线程工厂类
+ */
+public class MyThreadFactory implements ThreadFactory {
+
+    // 存放线程对象的数量
+    private int counter;
+    // 存放线程名称
+    private String name;
+    // 存放线程信息
+    private List<String> stats;
+
+    /**
+     * 构造方法
+     * @param name 线程名称
+     */
+    public MyThreadFactory(String name){
+        counter=0;
+        this.name=name;
+        stats=new ArrayList<String>();
+    }
+
+    /**
+     * Runnable对象为参数创建线程对象
+     * @param r: Runnable对象
+     */
+    @Override
+    public Thread newThread(Runnable r) {
+        // 创建一个线程
+        Thread t=new Thread(r,name+"-Thread_"+counter);
+        // 数量加一
+        counter++;
+        // 保存统计数据
+        stats.add(String.format("Created thread %d with name %s on %s\n",t.getId(),t.getName(),new Date()));
+        // 返回创建的线程
+        return t;
+    }
+
+    /**
+     * 返回所有线程的统计数据
+     * @return String类型的统计数据
+     */
+    public String getStats(){
+        StringBuffer buffer=new StringBuffer();
+        Iterator<String> it=stats.iterator();
+
+        while (it.hasNext()) {
+            buffer.append(it.next());
+        }
+        return buffer.toString();
+    }
+}
+
+/**
+ * 使用工厂类创建线程
+ */
+public class Main {
+    /**
+     * 实现线程工厂类并使用工厂类创建10个线程
+     * @param args
+     */
+    public static void main(String[] args) {
+        // 创建线程工厂对象
+        MyThreadFactory factory=new MyThreadFactory("MyThreadFactory");
+
+        // 创建10个线程并启动
+        System.out.printf("Starting the Threads\n");
+        for (int i=0; i<10; i++){
+            Thread thread=factory.newThread(new Task());
+            thread.start();
+        }
+        // 将线程工厂的统计打印到控制台
+        System.out.printf("Factory stats:\n");
+        System.out.printf("%s\n",factory.getStats());
+    }
+}
+```
+
+
+
+ThreadFactory接口只有一个方法，即`newThread`,它以`Runnable`接口对象作为传入参数并且返回一个线程对象。当实现ThreadFactory接口时，必须实现覆盖这个方法。大多数基本的线程工厂类只有一行，即:
+
+```
+return new Thread(r) ;
+```
+
+
+
+可以通过增加一些变化来强化实现方法覆盖：
+
+- 创建一个个性化线程， 如本例使用一个特殊的格式作为线程名，或者通过继承Thread类来创建自己的线程类
+
+- 保存新创建的线程的统计数据，如本例这样
+
+- 限制创建的线程的数量
+
+- 对生成的线程进行验证
+
+使用工厂设计模式是一个很好的编程实践，但是，如果是通过实现ThreadFactory接口来创建线程，你必须检查代码，以保证所有的线程都是使用这个工厂创建的
