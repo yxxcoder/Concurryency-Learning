@@ -29,5 +29,12 @@ public class PrintQueue {
 		} finally {
 			queueLock.unlock();
 		}
+
+		// 也可以通过tryLock获取锁
+//		if (queueLock.tryLock()) {
+//			System.out.println("Get Lock Succeed");
+//		} else {
+//			System.out.println("Get Lock Failed");
+//		}
 	}
 }

@@ -4,8 +4,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * This class simulates a print queue.
- *
+ * 此类模拟打印队列
  */
 public class PrintQueue {
 
