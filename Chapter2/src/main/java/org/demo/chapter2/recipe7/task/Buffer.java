@@ -26,13 +26,18 @@ public class Buffer {
 	private ReentrantLock lock;
 
 	/**
-	 * Conditions to control that the buffer has lines and has empty space
+	 * 控制是否有数据可供读取
 	 */
 	private Condition lines;
+
+	/**
+	 * 控制是否有空间写入新的一行数据
+	 */
 	private Condition space;
 
 	/**
-	 * 表明缓冲区中是否还有数据
+	 * 表明缓冲区中是否还会有数据，当Producer不在工作时该值为false
+	 * （当前例子只有一个Producer线程，多个Producer时会有问题）
 	 */
 	private boolean pendingLines;
 

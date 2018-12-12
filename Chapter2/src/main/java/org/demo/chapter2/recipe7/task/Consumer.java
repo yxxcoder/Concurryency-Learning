@@ -2,6 +2,7 @@ package org.demo.chapter2.recipe7.task;
 
 import java.util.Random;
 
+
 /**
  * 该类从缓冲区读取数据行并处理它
  */
