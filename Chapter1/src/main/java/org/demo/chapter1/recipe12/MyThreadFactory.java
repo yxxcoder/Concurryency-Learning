@@ -20,37 +20,40 @@ public class MyThreadFactory implements ThreadFactory {
 
     /**
      * 构造方法
+     *
      * @param name 线程名称
      */
-    public MyThreadFactory(String name){
-        counter=0;
-        this.name=name;
-        stats=new ArrayList<String>();
+    public MyThreadFactory(String name) {
+        counter = 0;
+        this.name = name;
+        stats = new ArrayList<String>();
     }
 
     /**
      * Runnable对象为参数创建线程对象
+     *
      * @param r: Runnable对象
      */
     @Override
     public Thread newThread(Runnable r) {
         // 创建一个线程
-        Thread t=new Thread(r,name+"-Thread_"+counter);
+        Thread t = new Thread(r, name + "-Thread_" + counter);
         // 数量加一
         counter++;
         // 保存统计数据
-        stats.add(String.format("Created thread %d with name %s on %s\n",t.getId(),t.getName(),new Date()));
+        stats.add(String.format("Created thread %d with name %s on %s\n", t.getId(), t.getName(), new Date()));
         // 返回创建的线程
         return t;
     }
 
     /**
      * 返回所有线程的统计数据
+     *
      * @return String类型的统计数据
      */
-    public String getStats(){
-        StringBuffer buffer=new StringBuffer();
-        Iterator<String> it=stats.iterator();
+    public String getStats() {
+        StringBuffer buffer = new StringBuffer();
+        Iterator<String> it = stats.iterator();
 
         while (it.hasNext()) {
             buffer.append(it.next());

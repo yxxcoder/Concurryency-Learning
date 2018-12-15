@@ -12,6 +12,7 @@ public class Result {
 
     /**
      * Read the name of the Thread
+     *
      * @return The name of the Thread
      */
     public String getName() {
@@ -20,6 +21,7 @@ public class Result {
 
     /**
      * Write the name of the Thread
+     *
      * @param name The name of the Thread
      */
     public void setName(String name) {

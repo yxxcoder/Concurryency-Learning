@@ -11,11 +11,12 @@ public class Calculator implements Runnable {
     private int number;
 
     /**
-     *  构造方法
+     * 构造方法
+     *
      * @param number : 被乘数
      */
     public Calculator(int number) {
-        this.number=number;
+        this.number = number;
     }
 
     /**
@@ -23,8 +24,8 @@ public class Calculator implements Runnable {
      */
     @Override
     public void run() {
-        for (int i=1; i<=10; i++){
-            System.out.printf("%s: %d * %d = %d\n",Thread.currentThread().getName(),number,i,i*number);
+        for (int i = 1; i <= 10; i++) {
+            System.out.printf("%s: %d * %d = %d\n", Thread.currentThread().getName(), number, i, i * number);
         }
     }
 

@@ -14,8 +14,8 @@ public class Main {
      */
     public static void main(String[] args) {
         // Creates the Runnable object and the Thread to run it
-        FileSearch searcher=new FileSearch("C:\\","autoexec.bat");
-        Thread thread=new Thread(searcher);
+        FileSearch searcher = new FileSearch("C:\\", "autoexec.bat");
+        Thread thread = new Thread(searcher);
 
         // Starts the Thread
         thread.start();

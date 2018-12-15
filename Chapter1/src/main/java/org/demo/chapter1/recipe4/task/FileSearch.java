@@ -32,7 +32,7 @@ public class FileSearch implements Runnable {
             try {
                 directoryProcess(file);
             } catch (InterruptedException e) {
-                System.out.printf("%s: The search has been interrupted",Thread.currentThread().getName());
+                System.out.printf("%s: The search has been interrupted", Thread.currentThread().getName());
                 cleanResources();
             }
         }
@@ -47,10 +47,9 @@ public class FileSearch implements Runnable {
 
     /**
      * 获取一个文件夹里的所有文件及子文件夹，对于文件夹递归调用，对于文件调用fileProcess方法
-     * @param file
-     *            : Directory to process
-     * @throws InterruptedException
-     *             : If the thread is interrupted
+     *
+     * @param file : Directory to process
+     * @throws InterruptedException : If the thread is interrupted
      */
     private void directoryProcess(File file) throws InterruptedException {
 
@@ -76,15 +75,13 @@ public class FileSearch implements Runnable {
      * 输入文件名与要查找的文件名相同则打印到控制台
      * 做完比较后检查线程是否已被中断
      *
-     * @param file
-     *            : File to process
-     * @throws InterruptedException
-     *             : If the thread is interrupted
+     * @param file : File to process
+     * @throws InterruptedException : If the thread is interrupted
      */
     private void fileProcess(File file) throws InterruptedException {
         // Check the name
         if (file.getName().equals(fileName)) {
-            System.out.printf("%s : %s\n",Thread.currentThread().getName() ,file.getAbsolutePath());
+            System.out.printf("%s : %s\n", Thread.currentThread().getName(), file.getAbsolutePath());
         }
 
         // Check the interruption

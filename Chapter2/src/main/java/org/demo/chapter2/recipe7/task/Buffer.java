@@ -10,110 +10,115 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class Buffer {
 
-	/**
-	 * 存放共享数据
-	 */
-	private LinkedList<String> buffer;
+    /**
+     * 存放共享数据
+     */
+    private LinkedList<String> buffer;
 
-	/**
-	 * 缓冲区大小
-	 */
-	private int maxSize;
+    /**
+     * 缓冲区大小
+     */
+    private int maxSize;
 
-	/**
-	 * 控制对缓冲区的访问
-	 */
-	private ReentrantLock lock;
+    /**
+     * 控制对缓冲区的访问
+     */
+    private ReentrantLock lock;
 
-	/**
-	 * 控制是否有数据可供读取
-	 */
-	private Condition lines;
+    /**
+     * 控制是否有数据可供读取
+     */
+    private Condition lines;
 
-	/**
-	 * 控制是否有空间写入新的一行数据
-	 */
-	private Condition space;
+    /**
+     * 控制是否有空间写入新的一行数据
+     */
+    private Condition space;
 
-	/**
-	 * 表明缓冲区中是否还会有数据，当Producer不在工作时该值为false
-	 * （当前例子只有一个Producer线程，多个Producer时会有问题）
-	 */
-	private boolean pendingLines;
+    /**
+     * 表明缓冲区中是否还会有数据，当Producer不在工作时该值为false
+     * （当前例子只有一个Producer线程，多个Producer时会有问题）
+     */
+    private boolean pendingLines;
 
-	/**
-	 * 构造方法 初始化缓冲区
-	 * @param maxSize 缓冲区大小
-	 */
-	public Buffer(int maxSize) {
-		this.maxSize = maxSize;
-		buffer = new LinkedList<>();
-		lock = new ReentrantLock();
-		lines = lock.newCondition();
-		space = lock.newCondition();
-		pendingLines = true;
-	}
+    /**
+     * 构造方法 初始化缓冲区
+     *
+     * @param maxSize 缓冲区大小
+     */
+    public Buffer(int maxSize) {
+        this.maxSize = maxSize;
+        buffer = new LinkedList<>();
+        lock = new ReentrantLock();
+        lines = lock.newCondition();
+        space = lock.newCondition();
+        pendingLines = true;
+    }
 
-	/**
-	 * 写入一行数据到缓冲区
-	 * @param line 要写入缓冲区的行
-	 */
-	public void insert(String line) {
-		lock.lock();
-		try {
-			while (buffer.size() == maxSize) {
-				space.await();
-			}
-			buffer.offer(line);
-			System.out.printf("%s: Inserted Line: %d\n", Thread.currentThread()
-					.getName(), buffer.size());
-			lines.signalAll();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} finally {
-			lock.unlock();
-		}
-	}
+    /**
+     * 写入一行数据到缓冲区
+     *
+     * @param line 要写入缓冲区的行
+     */
+    public void insert(String line) {
+        lock.lock();
+        try {
+            while (buffer.size() == maxSize) {
+                space.await();
+            }
+            buffer.offer(line);
+            System.out.printf("%s: Inserted Line: %d\n", Thread.currentThread()
+                    .getName(), buffer.size());
+            lines.signalAll();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            lock.unlock();
+        }
+    }
 
-	/**
-	 * 从缓冲区返回一行数据
-	 * @return 缓冲区中的一行
-	 */
-	public String get() {
-		String line=null;
-		lock.lock();		
-		try {
-			while ((buffer.size() == 0) &&(hasPendingLines())) {
-				lines.await();
-			}
-			
-			if (hasPendingLines()) {
-				line = buffer.poll();
-				System.out.printf("%s: Line Readed: %d\n", Thread.currentThread().getName(),buffer.size());
-				space.signalAll();
-			}
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		} finally {
-			lock.unlock();
-		}
-		return line;
-	}
+    /**
+     * 从缓冲区返回一行数据
+     *
+     * @return 缓冲区中的一行
+     */
+    public String get() {
+        String line = null;
+        lock.lock();
+        try {
+            while ((buffer.size() == 0) && (hasPendingLines())) {
+                lines.await();
+            }
 
-	/**
-	 * 设置pendingLines变量的值
-	 * @param pendingLines 改变后的值
-	 */
-	public void setPendingLines(boolean pendingLines) {
-		this.pendingLines = pendingLines;
-	}
+            if (hasPendingLines()) {
+                line = buffer.poll();
+                System.out.printf("%s: Line Readed: %d\n", Thread.currentThread().getName(), buffer.size());
+                space.signalAll();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            lock.unlock();
+        }
+        return line;
+    }
 
-	/**
-	 * 有可以处理的行时返回true，否则返回false
-	 * @return 是否有数据行可以处理
-	 */
-	public boolean hasPendingLines() {
-		return pendingLines || buffer.size() > 0;
-	}
+    /**
+     * 设置pendingLines变量的值
+     *
+     * @param pendingLines 改变后的值
+     */
+    public void setPendingLines(boolean pendingLines) {
+        this.pendingLines = pendingLines;
+    }
+
+    /**
+     * 有可以处理的行时返回true，否则返回false
+     *
+     * @return 是否有数据行可以处理
+     */
+    public boolean hasPendingLines() {
+        return pendingLines || buffer.size() > 0;
+    }
 
 }

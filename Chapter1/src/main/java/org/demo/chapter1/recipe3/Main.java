@@ -1,6 +1,7 @@
 package org.demo.chapter1.recipe3;
 
 import org.demo.chapter1.recipe3.task.PrimeGenerator;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -10,12 +11,13 @@ public class Main {
 
     /**
      * 运行PrimeGenerator 线程，运行5秒后通过中断机制使其终止
+     *
      * @param args
      */
     public static void main(String[] args) {
 
         // 启动线程
-        Thread task=new PrimeGenerator();
+        Thread task = new PrimeGenerator();
         task.start();
 
         // 等待5秒

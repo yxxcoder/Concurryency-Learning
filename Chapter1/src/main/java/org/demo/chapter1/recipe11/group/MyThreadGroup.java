@@ -7,6 +7,7 @@ public class MyThreadGroup extends ThreadGroup {
 
     /**
      * 声明带参数的构造方法
+     *
      * @param name
      */
     public MyThreadGroup(String name) {

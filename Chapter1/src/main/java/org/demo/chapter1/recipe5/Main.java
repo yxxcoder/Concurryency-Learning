@@ -2,6 +2,7 @@ package org.demo.chapter1.recipe5;
 
 
 import org.demo.chapter1.recipe5.task.FileClock;
+
 import java.util.concurrent.TimeUnit;
 
 
@@ -17,8 +18,8 @@ public class Main {
      */
     public static void main(String[] args) {
         // 创建FileClock runnable对象并创建一个线程运行
-        FileClock clock=new FileClock();
-        Thread thread=new Thread(clock);
+        FileClock clock = new FileClock();
+        Thread thread = new Thread(clock);
 
         // 启动线程
         thread.start();
@@ -27,7 +28,8 @@ public class Main {
             TimeUnit.SECONDS.sleep(5);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        };
+        }
+        ;
         // 中断线程
         thread.interrupt();
     }

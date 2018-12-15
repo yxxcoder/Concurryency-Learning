@@ -4,7 +4,6 @@ import java.util.Date;
 
 /**
  * Class that stores event's information
- *
  */
 public class Event {
 
@@ -20,6 +19,7 @@ public class Event {
 
     /**
      * Reads the Date of the event
+     *
      * @return the Date of the event
      */
     public Date getDate() {
@@ -28,6 +28,7 @@ public class Event {
 
     /**
      * Writes the Date of the event
+     *
      * @param date the date of the event
      */
     public void setDate(Date date) {
@@ -36,6 +37,7 @@ public class Event {
 
     /**
      * Reads the message of the event
+     *
      * @return the message of the event
      */
     public String getEvent() {
@@ -44,6 +46,7 @@ public class Event {
 
     /**
      * Writes the message of the event
+     *
      * @param event the message of the event
      */
     public void setEvent(String event) {

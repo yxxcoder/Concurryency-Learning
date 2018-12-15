@@ -16,15 +16,15 @@ public class Main {
     public static void main(String[] args) {
 
         // 创建事件存储对象
-        EventStorage storage=new EventStorage();
+        EventStorage storage = new EventStorage();
 
         // 创建生产者线程
-        Producer producer=new Producer(storage);
-        Thread thread1=new Thread(producer);
+        Producer producer = new Producer(storage);
+        Thread thread1 = new Thread(producer);
 
         // 创建消费者线程
-        Consumer consumer=new Consumer(storage);
-        Thread thread2=new Thread(consumer);
+        Consumer consumer = new Consumer(storage);
+        Thread thread2 = new Thread(consumer);
 
         // 启动线程
         thread2.start();

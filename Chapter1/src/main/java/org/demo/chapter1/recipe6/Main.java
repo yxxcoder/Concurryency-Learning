@@ -2,6 +2,7 @@ package org.demo.chapter1.recipe6;
 
 import org.demo.chapter1.recipe6.task.DataSourcesLoader;
 import org.demo.chapter1.recipe6.task.NetworkConnectionsLoader;
+
 import java.util.Date;
 
 /**
@@ -17,12 +18,12 @@ public class Main {
 
         // 创建并启动DataSourceLoader线程对象
         DataSourcesLoader dsLoader = new DataSourcesLoader();
-        Thread thread1 = new Thread(dsLoader,"DataSourceThread");
+        Thread thread1 = new Thread(dsLoader, "DataSourceThread");
         thread1.start();
 
         // 创建并启动NetworkConnectionsLoader线程
         NetworkConnectionsLoader ncLoader = new NetworkConnectionsLoader();
-        Thread thread2 = new Thread(ncLoader,"NetworkConnectionLoader");
+        Thread thread2 = new Thread(ncLoader, "NetworkConnectionLoader");
         thread2.start();
 
         // 等待两个线程终止
@@ -34,7 +35,7 @@ public class Main {
         }
 
         // 主线程执行结束
-        System.out.printf("Main: Configuration has been loaded: %s\n",new Date());
+        System.out.printf("Main: Configuration has been loaded: %s\n", new Date());
     }
 }
 

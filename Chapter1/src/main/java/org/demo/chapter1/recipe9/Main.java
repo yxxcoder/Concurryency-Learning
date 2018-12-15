@@ -1,6 +1,7 @@
 package org.demo.chapter1.recipe9;
 
 import org.demo.chapter1.recipe9.task.UnsafeTask;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -13,11 +14,11 @@ public class Main {
      */
     public static void main(String[] args) {
         // Creates the unsafe task
-        UnsafeTask task=new UnsafeTask();
+        UnsafeTask task = new UnsafeTask();
 
         // Throw three Thread objects
-        for (int i=0; i<3; i++){
-            Thread thread=new Thread(task);
+        for (int i = 0; i < 3; i++) {
+            Thread thread = new Thread(task);
             thread.start();
             try {
                 TimeUnit.SECONDS.sleep(2);

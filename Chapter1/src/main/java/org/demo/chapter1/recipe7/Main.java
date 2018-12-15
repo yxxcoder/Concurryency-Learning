@@ -18,17 +18,17 @@ public class Main {
     public static void main(String[] args) {
 
         // 创建存放Event对象的双向队列
-        Deque<Event> deque=new ArrayDeque<Event>();
+        Deque<Event> deque = new ArrayDeque<Event>();
 
         // 创建并启动3个WriterTask线程
-        WriterTask writer=new WriterTask(deque);
-        for (int i=0; i<3; i++){
-            Thread thread=new Thread(writer);
+        WriterTask writer = new WriterTask(deque);
+        for (int i = 0; i < 3; i++) {
+            Thread thread = new Thread(writer);
             thread.start();
         }
 
         // 创建并启动CleanerTask
-        CleanerTask cleaner=new CleanerTask(deque);
+        CleanerTask cleaner = new CleanerTask(deque);
         cleaner.start();
 
     }

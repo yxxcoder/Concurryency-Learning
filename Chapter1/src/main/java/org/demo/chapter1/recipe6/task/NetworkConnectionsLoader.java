@@ -5,7 +5,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Class that simulates an initialization operation. It sleeps during six seconds
- *
  */
 public class NetworkConnectionsLoader implements Runnable {
 
@@ -16,7 +15,7 @@ public class NetworkConnectionsLoader implements Runnable {
     @Override
     public void run() {
         // Writes a message
-        System.out.printf("Begining network connections loading: %s\n",new Date());
+        System.out.printf("Begining network connections loading: %s\n", new Date());
         // Sleep six seconds
         try {
             TimeUnit.SECONDS.sleep(6);
@@ -24,7 +23,7 @@ public class NetworkConnectionsLoader implements Runnable {
             e.printStackTrace();
         }
         // Writes a message
-        System.out.printf("Network connections loading has finished: %s\n",new Date());
+        System.out.printf("Network connections loading has finished: %s\n", new Date());
     }
 }
 

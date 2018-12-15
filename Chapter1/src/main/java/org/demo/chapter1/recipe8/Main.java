@@ -10,7 +10,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        Thread thread=new Thread(new Task());
+        Thread thread = new Thread(new Task());
 
         // 设置线程的运行时异常处理器
         thread.setUncaughtExceptionHandler(new ExceptionHandler());
