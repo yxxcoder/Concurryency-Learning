@@ -3,7 +3,7 @@
 [TOC]
 
 ## 1. 线程的创建和运行
-Java提供了两种方式创建线程；
+Java提供了两种方式创建线程：
 - 继承Thread类并覆盖run()方法
 - 实现Runnable接口，该类的对象作为Thread构造方法的参数创建Thread对象
 ```java

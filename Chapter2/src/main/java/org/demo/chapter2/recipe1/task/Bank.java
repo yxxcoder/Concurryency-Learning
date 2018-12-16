@@ -22,6 +22,7 @@ public class Bank implements Runnable {
     /**
      * 连续扣钱100次
      */
+    @Override
     public void run() {
         for (int i = 0; i < 100; i++) {
             account.subtractAmount(1000);

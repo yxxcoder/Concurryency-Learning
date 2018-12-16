@@ -21,6 +21,7 @@ public class Company implements Runnable {
     /**
      * 连续支付薪水100次
      */
+    @Override
     public void run() {
         for (int i = 0; i < 100; i++) {
             account.addAmount(1000);
