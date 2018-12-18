@@ -97,6 +97,121 @@ synchronized (this) {
 
 ## 2. 使用非依赖属性实现同步
 
+当使用synchronized关键字来保护代码块时，必须把对象引用作为传入参数。通常情况下，使用this关键字来引用执行方法所属的对象，也可以使用其他的对象对其进行引用。一般来说，这些对象就是为这个目的而创建的。例如，在类中有两个非依赖属性，它们被多个线程共享，你必须同步每一个变量的访问，但是同一时刻只允许一个线程访问一个属性变量，其他某个线程访问另一个属性变量
+
+```java
+/**
+ * 模拟电影院
+ */
+public class Cinema {
+
+    /**
+     * 用于并发控制属性
+     * controlCinema1用于控制对vacanciesCinema1属性的访问，同一时间只有一个线程可以访问vacanciesCinema1属性
+     * 同理，controlCinema2用于对vacanciesCinema1属性的访问控制
+     */
+    private final Object controlCinema1, controlCinema2;
+    /**
+     * 保存两个电影的剩余票数
+     */
+    private long vacanciesCinema1;
+    private long vacanciesCinema2;
+
+    /**
+     * 构造方法，初始化对象
+     */
+    public Cinema() {
+        controlCinema1 = new Object();
+        controlCinema2 = new Object();
+        vacanciesCinema1 = 20;
+        vacanciesCinema2 = 20;
+    }
+
+    /**
+     * 该方法实现了电影院1的售票操作
+     *
+     * @param number 售票数量
+     * @return 如果门票售出则为true，如果没有则为false
+     */
+    public boolean sellTickets1(int number) {
+        synchronized (controlCinema1) {
+            if (number < vacanciesCinema1) {
+                vacanciesCinema1 -= number;
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    /**
+     * 该方法实现了电影院2的售票操作
+     *
+     * @param number 售票数量
+     * @return 如果门票售出则为true，如果没有则为false
+     */
+    public boolean sellTickets2(int number) {
+        synchronized (controlCinema2) {
+            if (number < vacanciesCinema2) {
+                vacanciesCinema2 -= number;
+                return true;
+            } else {
+                return false;
+            }
+        }
+    }
+
+    /**
+     * 该方法实现了电影院1的回收票的操作
+     *
+     * @param number 回收的票数
+     * @return true
+     */
+    public boolean returnTickets1(int number) {
+        synchronized (controlCinema1) {
+            vacanciesCinema1 += number;
+            return true;
+        }
+    }
+
+    /**
+     * 该方法实现了电影院2的回收票的操作
+     *
+     * @param number 回收的票数
+     * @return true
+     */
+    public boolean returnTickets2(int number) {
+        synchronized (controlCinema2) {
+            vacanciesCinema2 += number;
+            return true;
+        }
+    }
+
+    /**
+     * 返回电影院1的余票
+     *
+     * @return 电影院1的余票
+     */
+    public long getVacanciesCinema1() {
+        return vacanciesCinema1;
+    }
+
+    /**
+     * 返回电影院2的余票
+     *
+     * @return 电影院2的余票
+     */
+    public long getVacanciesCinema2() {
+        return vacanciesCinema2;
+    }
+
+}
+```
+
+用synchronized关键字保护代码块时，我们使用对象作为它的传入参数。JVM保证同一时间只有一个线程能够访问这个对象的代码保护块（注意我们一直谈论的是对象，不是类）
+
+这个例子使用了一个对象来控制对vacanciesCinema1属性的访问，所以同一时间只有一个线程能够修改这个属性;使用了另一个对象来控制vacanciesCinema2属性的访问，所以同一时间只有一个线程能够修改这个属性。但是，这个例子允许同时运行两个线程：一个修改vacancesCinema1属性，另一 个修改vacanciesCinema2属性
+
 
 
 ## 3. 在同步代码中使用条件
