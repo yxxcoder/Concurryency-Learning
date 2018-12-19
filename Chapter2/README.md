@@ -97,7 +97,7 @@ synchronized (this) {
 
 ## 2. 使用非依赖属性实现同步
 
-当使用synchronized关键字来保护代码块时，必须把对象引用作为传入参数。通常情况下，使用this关键字来引用执行方法所属的对象，也可以使用其他的对象对其进行引用。一般来说，这些对象就是为这个目的而创建的。例如，在类中有两个非依赖属性，它们被多个线程共享，你必须同步每一个变量的访问，但是同一时刻只允许一个线程访问一个属性变量，其他某个线程访问另一个属性变量
+当使用synchronized关键字来保护代码块时，必须把对象引用作为传入参数。通常情况下，使用this关键字来引用执行方法所属的对象，**也可以使用其他的对象对其进行引用**。一般来说，这些对象就是为这个目的而创建的。例如，在类中有两个非依赖属性，它们被多个线程共享，你必须同步每一个变量的访问，但是同一时刻只允许一个线程访问一个属性变量，其他某个线程访问另一个属性变量
 
 ```java
 /**
@@ -210,11 +210,80 @@ public class Cinema {
 
 用synchronized关键字保护代码块时，我们使用对象作为它的传入参数。JVM保证同一时间只有一个线程能够访问这个对象的代码保护块（注意我们一直谈论的是对象，不是类）
 
-这个例子使用了一个对象来控制对vacanciesCinema1属性的访问，所以同一时间只有一个线程能够修改这个属性;使用了另一个对象来控制vacanciesCinema2属性的访问，所以同一时间只有一个线程能够修改这个属性。但是，这个例子允许同时运行两个线程：一个修改vacancesCinema1属性，另一 个修改vacanciesCinema2属性
+这个例子使用了一个对象来控制对vacanciesCinema1属性的访问，所以同一时间只有一个线程能够修改这个属性；使用了另一个对象来控制vacanciesCinema2属性的访问，所以同一时间只有一个线程能够修改这个属性。但是，这个例子允许同时运行两个线程：一个修改vacancesCinema1属性，另一 个修改vacanciesCinema2属性
 
 
 
 ## 3. 在同步代码中使用条件
+
+在并发编程中一个典型的问题是生产者-消费者（Producer-Consumer）问题。我们有一个数据缓冲区，一个或者多个数据生产者将把数据存入这个缓冲区，一个或者多个数据消费者将数据从缓冲区中取走
+
+这个缓冲区是一个共享数据结构，必须使用同步机制控制对它的访问，例如使用synchronized关键字，但是会受到更多的限制。如果缓冲区是满的，生产者就不能再放入数据，如果缓冲区是空的，消费者就不能读取数据
+
+对于这些场景，Java在`Object`类中提供了`wait()`、`notify()`和 `notifyAll()`方法。线程可以在同步代码块中调用`wait()`方法。**如果在同步代码块之外调用`wait()`方法，JVM将抛出`llegalMonitorStateException`异常**。当一个线程调用`wait()`方法时，JVM将这个线程置入休眠，并且释放控制这个同步代码块的对象，同时允许其他线程执行这个对象控制的其他同步代码块。为了唤醒这个线程，必须在这个对象控制的某个**同步代码块中**调用`notify()`或者`notifyAll()`方法
+
+```java
+/**
+ * 事件存储类
+ */
+public class EventStorage {
+
+    /**
+     * 最大存储大小
+     */
+    private int maxSize;
+    /**
+     * 存储的事件
+     */
+    private List<Date> storage;
+
+    /**
+     * 该类的构造函数，初始化属性
+     */
+    public EventStorage() {
+        maxSize = 10;
+        storage = new LinkedList<>();
+    }
+
+    /**
+     * 此方法创建并存储事件
+     */
+    public synchronized void set() {
+        while (storage.size() == maxSize) {
+            try {
+                // 挂起线程，等待空余空间
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        storage.add(new Date());
+        System.out.printf("Set: %d\n", storage.size());
+        // 生产事件后唤醒等待事件的线程
+        notify();
+    }
+
+    /**
+     * 此方法消费链表的第一个事件
+     */
+    public synchronized void get() {
+        while (storage.size() == 0) {
+            try {
+                // 挂起线程，事件的出现
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        System.out.printf("Get: %d: %s\n", storage.size(), ((LinkedList<?>) storage).poll());
+        // 唤醒因调用wait()方法进入休眠的线程
+        // 即生产者等待空间时挂起的线程
+        notify();
+    }
+}
+```
+
+必须在while循环中调用`wait()`，并且不断查询while的条件，直到条件为真的时候才能继续
 
 
 
