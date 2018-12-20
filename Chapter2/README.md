@@ -289,6 +289,61 @@ public class EventStorage {
 
 ## 4. 使用锁实现同步
 
+Java提供了同步代码块的另一种机制，这是一种比`synchronized`关键字更强大也更灵活的机制。这种机制基于`Lock`接口及其实现类（例如`ReentrantLock`），提供了更多的好处
+
+- 支持更灵活的同步代码块结构。使用`synchronized` 关键字时，只能在同一个`synchronized`块结构中获取和释放控制。`Lock`接口允许实现更复杂的临界区结构（**即控制的获取和释放不出现在同一个块结构中**）
+- 相比 `synchronized`关键字，`Lock`接口提供了更多的功能。其中一个新功能是`tryLock()`方法的实现。这个方法试图获取锁，如果锁已被其他线程获取，它将返回false并继续往下执行代码。使用`synchronized`关键字时，如果线程A试图执行一个同步代码块，而线程B已在执行这个同步代码块，则线程A就会被挂起直到线程B运行完这个同步代码块。**使用锁的`tryLock()`方法，通过返回值将得知是否有其他线程正在使用这个锁保护的代码块**
+- `Lock`接口允许`分离读和写操作`，允许多个读线程和只有一个写线程
+- 相比 synchronized关键字，Lock 接口**具有更好的性能**
+
+```java
+/**
+ * 此类模拟打印队列
+ */
+public class PrintQueue {
+
+    /**
+     * 该锁用以控制对队列的访问
+     */
+    private final Lock queueLock = new ReentrantLock();
+
+    /**
+     * 打印文档
+     *
+     * @param document 打印任务
+     */
+    public void printJob(Object document) {
+        queueLock.lock();
+
+        try {
+            Long duration = (long) (Math.random() * 10000);
+            System.out.printf("%s: PrintQueue: Printing a Job during %d seconds\n", Thread.currentThread().getName(), (duration / 1000));
+            Thread.sleep(duration);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            queueLock.unlock();
+        }
+
+        // 也可以通过tryLock获取锁
+//		if (queueLock.tryLock()) {
+//			System.out.println("Get Lock Succeed");
+//		} else {
+//			System.out.println("Get Lock Failed");
+//		}
+    }
+}
+
+```
+
+在线程离开临界区的时候，我们必须使用`unlock()`方法来释放它持有的锁，以让其他线程来访问临界区。**如果在离开临界区的时候没有调用`unlock()`方法，其他线程将永久地等待，从而导致了死锁(Deadlock)情景**。如果在临界区使用了`try-catch`块，不要忘记将`unlock()`方法放入`finally`部分
+
+`Lock`接口(和它的实现类`ReentrantLock` )还提供了另一个方法来获取锁,即`tryLock()`方法。跟`lock()`方法最大的不同是：**线程使用`tryLock()`不能够获取锁， tryLock()会立即返回，它不会将线程置入休眠**。`tryLock()`方法返回一个布尔值，true表示线程获取了锁，false表示没有获取锁
+
+需要重视`tryLock()`方法的返回值及其对应的行为。如果这个方法返回false，则程序不会执行临界区代码。如果执行了，这个应用很可能会出现错误的结果
+
+**`ReentrantLock`类也允许使用递归调用**。如果一个线程获取了锁并且进行了递归调用，它将继续持有这个锁，因此调用`lock()`方法后也将立即返回，并且线程将继续执行递归调用。再者，我们还可以调用其他的方法
+
 
 
 ## 5. 使用读写锁实现同步数据访问
