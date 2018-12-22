@@ -422,6 +422,60 @@ public class PricesInfo {
 
 ## 6. 修改锁的公平性
 
+`ReentrantLock`和`ReentrantReadWriteLock`类的构造器都含有一个布尔参数`fair`，它允许你控制这两个类的行为
+
+默认`fair`值是`false`，它称为非公平模式(Non-Fair Mode)。在非公平模式下，当有很多线程在等待锁（`ReentrantLock` 和`ReentrantReadWriteLock`）时，锁将选择它们中的一个来访问临界区，这个选择是没有任何约束的。如果fair值是true，则称为公平模式(Fair Mode)。在公平模式下，当有很多线程在等待锁（ `ReentrantLock`和`ReentrantReadWriteLock`）时，**锁将选择它们中等待时间最长的一个来访问临界区**
+
+这两种模式只适用于`lock()`和`unlock()`方法。**而Lock接口的`tryLock()`方法没有将线程置于休眠，`fair` 属性并不影响这个方法**
+
+```java
+/**
+ * 此类模拟打印队列
+ */
+public class PrintQueue {
+
+    /**
+     * 创建锁用以控制对队列的访问
+     * 默认fair值为false，即为非公平锁，为true时为公平锁
+     * 如果一个锁是公平的，那么锁的获取顺序就应该符合请求上的绝对时间顺序，满足FIFO
+     * 公平锁每次都是从同步队列中的第一个节点获取到锁，而非公平性锁则不一定，有可能刚释放锁的线程能再次获取到锁
+     */
+    private final Lock queueLock = new ReentrantLock(false);
+
+    /**
+     * 打印作业的方法
+     * 打印分为两个阶段，体验公平属性如何影响线程选举的有锁控制权
+     *
+     * @param document 打印的作业
+     */
+    public void printJob(Object document) {
+        queueLock.lock();
+
+        try {
+            Long duration = (long) (Math.random() * 10000);
+            System.out.printf("%s: PrintQueue: First Printing a Job during %d seconds\n", Thread.currentThread().getName(), (duration / 1000));
+            Thread.sleep(duration);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            queueLock.unlock();
+        }
+
+
+        queueLock.lock();
+        try {
+            Long duration = (long) (Math.random() * 10000);
+            System.out.printf("%s: PrintQueue: Second Printing a Job during %d seconds\n", Thread.currentThread().getName(), (duration / 1000));
+            Thread.sleep(duration);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            queueLock.unlock();
+        }
+    }
+}
+```
+
 
 
 ## 7.在锁中使用多条件 
