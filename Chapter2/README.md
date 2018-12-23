@@ -480,3 +480,130 @@ public class PrintQueue {
 
 ## 7.在锁中使用多条件 
 
+一个锁可能关联一个或者**多个条件**，这些条件通过`Condition`接口声明。目的是允许线程获取锁并且查看等待的某一个条件是否满足，如果不满足就挂起直到某个线程唤醒它们。`Condition`接口提供了挂起线程和唤起线程的机制
+
+```java
+/**
+ * 数据缓冲区
+ * 生产者读取数据写入缓冲区，消费者将缓冲区中的数据消费掉
+ */
+public class Buffer {
+
+    /**
+     * 存放共享数据
+     */
+    private LinkedList<String> buffer;
+
+    /**
+     * 缓冲区大小
+     */
+    private int maxSize;
+
+    /**
+     * 控制对缓冲区的访问
+     */
+    private ReentrantLock lock;
+
+    /**
+     * 控制是否有数据可供读取
+     */
+    private Condition lines;
+
+    /**
+     * 控制是否有空间写入新的一行数据
+     */
+    private Condition space;
+
+    /**
+     * 表明缓冲区中是否还会有数据，当Producer不在工作时该值为false
+     * （当前例子只有一个Producer线程，多个Producer时会有问题）
+     */
+    private boolean pendingLines;
+
+    /**
+     * 构造方法 初始化缓冲区
+     *
+     * @param maxSize 缓冲区大小
+     */
+    public Buffer(int maxSize) {
+        this.maxSize = maxSize;
+        buffer = new LinkedList<>();
+        lock = new ReentrantLock();
+        lines = lock.newCondition();
+        space = lock.newCondition();
+        pendingLines = true;
+    }
+
+    /**
+     * 写入一行数据到缓冲区
+     *
+     * @param line 要写入缓冲区的行
+     */
+    public void insert(String line) {
+        lock.lock();
+        try {
+            while (buffer.size() == maxSize) {
+                space.await();
+            }
+            buffer.offer(line);
+            System.out.printf("%s: Inserted Line: %d\n", Thread.currentThread()
+                    .getName(), buffer.size());
+            lines.signalAll();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    /**
+     * 从缓冲区返回一行数据
+     *
+     * @return 缓冲区中的一行
+     */
+    public String get() {
+        String line = null;
+        lock.lock();
+        try {
+            while ((buffer.size() == 0) && (hasPendingLines())) {
+                lines.await();
+            }
+
+            if (hasPendingLines()) {
+                line = buffer.poll();
+                System.out.printf("%s: Line Readed: %d\n", Thread.currentThread().getName(), buffer.size());
+                space.signalAll();
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            lock.unlock();
+        }
+        return line;
+    }
+
+    /**
+     * 设置pendingLines变量的值
+     *
+     * @param pendingLines 改变后的值
+     */
+    public void setPendingLines(boolean pendingLines) {
+        this.pendingLines = pendingLines;
+    }
+
+    /**
+     * 有可以处理的行时返回true，否则返回false
+     *
+     * @return 是否有数据行可以处理
+     */
+    public boolean hasPendingLines() {
+        return pendingLines || buffer.size() > 0;
+    }
+}
+```
+
+
+
+// 这章整理完
+
+// 思维导图整理一下
