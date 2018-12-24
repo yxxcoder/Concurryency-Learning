@@ -602,8 +602,29 @@ public class Buffer {
 }
 ```
 
+与锁绑定的所有条件对象都是通过Lock接口声明的`newCondition()`方法创建的。**在使用条件的时候，必须获取这个条件绑定的锁，所以带条件的代码必须在调用`Lock`对象的`lock()`方法和`unlock()`方法之间**
+
+当一个线程调用了条件对象的`signal()`或者`signallAll()`方法后， 一个或者多个在该条件上挂起的线程将被唤醒，但这并不能保证让它们挂起的条件已经满足，所以**必须在`while`循环中调用`await()`，在条件成立之前不能离开这个循环**。如果条件不成立，将再次调用`await()`
+
+因调用`await()`方法进入休眠的线程**可能会被中断**，所以必须处理`InterruptedException`异常
 
 
-// 这章整理完
 
-// 思维导图整理一下
+Condition接口还提供了await()方法的其他形式：
+
+**`await(long time, TimeUnit unit)`**，直到发生以下情况之一之前，线程将一直处于休眠状态
+
+- 其他某个线程中断当前线程
+- 其他某个线程调用了将当前线程挂起的条件的`singal()`或`signalAll()`方法
+- 指定的等待时间已经过去
+- 通过TimeUnit 类的常量DAYS、 HOURS、MICROSECONDS、 MILLISECONDS、MINUTES、ANOSECONDS和SECONDS指定的等待时间已经过去
+
+**`awaitUninterruptibly()`**，是不可中断的。这个线程将休眠直到其他某个线程调用了将它挂起的条件的`singal()`或`signalAll()`方法
+**`awaitUntil(Date date)`** ，直到发生以下情况之一之前，线程将一直处于休眠状态
+
+- 其他某个线程中断当前线程
+- 其他某个线程调用了将它挂起的条件的`singal()`或`signalAll()`方法
+- 指定的最后期限到了
+
+**也可以将条件与读写锁ReadLock和WriteLock一起使用**
+
