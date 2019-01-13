@@ -14,13 +14,11 @@ public class MatrixMock {
 
     /**
      * 传入矩阵行数，每行的长度，要寻找的数字，生成二维数组
-     * Constructor of the class. Generates the bi-dimensional array of numbers.
-     * While generates the array, it counts the times that appears the number we are going to look for so we can check that the CiclycBarrier class does a good job
-     * 在生成数组时，它计算出我们要查找的数字的次数，这样我们就可以检查CiclycBarrier类是否做得很好
+     * 在生成数组时，同时记录下待寻找的数字在数组中的个数，用于检查查询线程是否得到正确的结果
      *
-     * @param size   Number of rows of the array 数组的行数
-     * @param length Number of columns of the array 数组的列数
-     * @param number Number we are going to look for 要寻找的数字
+     * @param size 数组的行数
+     * @param length 数组的列数
+     * @param number 要寻找的数字
      */
     public MatrixMock(int size, int length, int number) {
 
@@ -35,15 +33,15 @@ public class MatrixMock {
                 }
             }
         }
+        // 打印出待寻找的数字在数组中的个数，用于检查查询线程是否得到正确的结果
         System.out.printf("Mock: There are %d ocurrences of number in generated data.\n", counter, number);
     }
 
     /**
      * 此方法返回二维数组的一行
-     * This methods returns a row of the bi-dimensional array
      *
-     * @param row 要返回的行
-     * @return 选定的行的数组
+     * @param row 要返回的行序号
+     * @return 存在即返回不存在返回 null
      */
     public int[] getRow(int row) {
         if ((row >= 0) && (row < data.length)) {

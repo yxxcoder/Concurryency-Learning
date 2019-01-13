@@ -8,22 +8,21 @@ import org.demo.chapter3.recipe4.utils.Results;
 import java.util.concurrent.CyclicBarrier;
 
 /**
- * Main class of the example
+ * 在集合点的同步
+ * 采用分治编程技术
  */
 public class Main {
 
     /**
-     * Main method of the example
-     *
-     * @param args
+     * 等待 5 个查询线程执行结束后执行汇总线程grouper
      */
     public static void main(String[] args) {
 
         /*
-         * Initializes the bi-dimensional array of data
-         * 		10000 rows
-         * 		1000 numbers in each row
-         * 		Looking for number 5
+         * 初始化二维数组
+         * 		10000 行
+         * 		1000 个数字每行
+         * 		查询数字 5
          */
         final int ROWS = 10000;
         final int NUMBERS = 1000;
@@ -32,18 +31,17 @@ public class Main {
         final int LINES_PARTICIPANT = 2000;
         MatrixMock mock = new MatrixMock(ROWS, NUMBERS, SEARCH);
 
-        // Initializes the object for the results
+        // 初始化结果对象Results
         Results results = new Results(ROWS);
 
-        // Creates an Grouper object
+        // 初始化汇总线程
         Grouper grouper = new Grouper(results);
 
-        // Creates the CyclicBarrier object. It has 5 participants and, when
-        // they finish, the CyclicBarrier will execute the grouper object
+        // 创建CyclicBarrier对象，这个对象等待 5 个查询线程执行结束后执行汇总线程grouper
         CyclicBarrier barrier = new CyclicBarrier(PARTICIPANTS, grouper);
 
-        // Creates, initializes and starts 5 Searcher objects
-        Searcher searchers[] = new Searcher[PARTICIPANTS];
+        // 创建并启动 5 个查询线程
+        Searcher[] searchers = new Searcher[PARTICIPANTS];
         for (int i = 0; i < PARTICIPANTS; i++) {
             searchers[i] = new Searcher(i * LINES_PARTICIPANT, (i * LINES_PARTICIPANT) + LINES_PARTICIPANT, mock, results, 5, barrier);
             Thread thread = new Thread(searchers[i]);

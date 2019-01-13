@@ -8,44 +8,44 @@ import java.util.concurrent.CyclicBarrier;
 
 
 /**
- * Class that search for a number in a set of rows of the bi-dimensional array
+ * 查找类，在二维数组MatrixMock中查询某一数字
  */
 public class Searcher implements Runnable {
 
     /**
-     * CyclicBarrier to control the execution
+     * 控制多线程并发执行
      */
     private final CyclicBarrier barrier;
     /**
-     * First row where look for
+     * 开始查询的第一行的行序号
      */
     private int firstRow;
     /**
-     * Last row where look for
+     * 查询的最后一行的行序号
      */
     private int lastRow;
     /**
-     * Bi-dimensional array with the numbers
+     * 待查询的二维数组
      */
     private MatrixMock mock;
     /**
-     * Array to store the results
+     * 用于存储结果的数组
      */
     private Results results;
     /**
-     * Number to look for
+     * 待查找的数字
      */
     private int number;
 
     /**
-     * Constructor of the class. Initializes its attributes
+     * 初始化对象
      *
-     * @param firstRow First row where look for
-     * @param lastRow  Last row where fook for
-     * @param mock     Object with the array of numbers
-     * @param results  Array to store the results
-     * @param number   Number to look for
-     * @param barrier  CyclicBarrier to control the execution
+     * @param firstRow 开始查询的第一行的行序号
+     * @param lastRow  查询的最后一行的行序号
+     * @param mock     待查询的二维数组
+     * @param results  用于存储结果的数组
+     * @param number   待查找的数字
+     * @param barrier  控制多线程并发执行的CyclicBarrier对象
      */
     public Searcher(int firstRow, int lastRow, MatrixMock mock, Results results, int number, CyclicBarrier barrier) {
         this.firstRow = firstRow;
@@ -57,8 +57,7 @@ public class Searcher implements Runnable {
     }
 
     /**
-     * Main method of the searcher. Look for the number in a subset of rows. For each row, saves the
-     * number of occurrences of the number in the array of results
+     * 在指定的行中进行查找，对于每一列，将查询到的次数存储到results对象中的数组的相应位置
      */
     public void run() {
         int counter;
@@ -75,6 +74,7 @@ public class Searcher implements Runnable {
         }
         System.out.printf("%s: Lines processed.\n", Thread.currentThread().getName());
         try {
+            // 调用 await() 方法，等待其他查询线程执行结束
             barrier.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
