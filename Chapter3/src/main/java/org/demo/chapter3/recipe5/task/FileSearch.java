@@ -29,7 +29,7 @@ public class FileSearch implements Runnable {
 
     /**
      * Phaser 对象用来同步多个 FileSearch 线程的查询操作，查询操作雰围三个阶段：
-     * 1st: 在文件夹及其子文件夹中查找具有扩展名的文件
+     * 1st: 在文件夹及其子文件夹中查找具有指定扩展名的文件
      * 2nd: 筛选结果，只保留今天修改过的文件
      * 3rd: 打印结果
      */
@@ -51,7 +51,7 @@ public class FileSearch implements Runnable {
     }
 
     /**
-     * Main method of the class. See the comments inside to a better description of it
+     * 查找文件，并利用 Phaser 同步多个 FileSearch 线程的并发操作
      */
     @Override
     public void run() {
@@ -61,27 +61,28 @@ public class FileSearch implements Runnable {
 
         System.out.printf("%s: Starting.\n", Thread.currentThread().getName());
 
-        // 1st Phase: 查找文件
+        // 1st Phase: 在文件夹及其子文件夹中查找具有指定扩展名的文件
         File file = new File(initPath);
         if (file.isDirectory()) {
             directoryProcess(file);
         }
 
-        // If no results, deregister in the phaser and ends
+        // 如果当前线程没有结果，则取消对 Phaser 的注册，结束任务
         if (!checkResults()) {
             return;
         }
 
-        // 2nd Phase: Filter the results
+        // 2nd Phase: 筛选结果，只保留今天修改过的文件
         filterResults();
 
-        // If no results after the filter, deregister in the phaser and ends
+        // 筛选结果后，如果当前线程没有结果则取消对 Phaser 的注册，结束任务
         if (!checkResults()) {
             return;
         }
 
-        // 3rd Phase: Show info
+        // 3rd Phase: 打印查询结果
         showInfo();
+        // 取消对 Phaser 的注册，结束任务
         phaser.arriveAndDeregister();
         System.out.printf("%s: Work completed.\n", Thread.currentThread().getName());
 
@@ -100,20 +101,19 @@ public class FileSearch implements Runnable {
     }
 
     /**
-     * This method checks if there are results after the execution of a phase. If there aren't
-     * results, deregister the thread of the phaser.
+     * 检查当前线程在 1st 阶段执行后是否有结果。如果当前线程没有结果，则取消对 Phaser 的注册
      *
-     * @return true if there are results, false if not
+     * @return 有结果返回 true，没有则为 false
      */
     private boolean checkResults() {
         if (results.isEmpty()) {
             System.out.printf("%s: Phase %d: 0 results.\n", Thread.currentThread().getName(), phaser.getPhase());
             System.out.printf("%s: Phase %d: End.\n", Thread.currentThread().getName(), phaser.getPhase());
-            // No results. Phase is completed but no more work to do. Deregister for the phaser
+            // 没有结果， 通知 Phase 对象当前线程已经结束这个阶段，并且将不在参与接下来的阶段操作，取消对 Phaser 注册
             phaser.arriveAndDeregister();
             return false;
         } else {
-            // There are results. Phase is completed. Wait to continue with the next phase
+            // 当前线程有结果的话，同步各线程等待进入下一阶段
             System.out.printf("%s: Phase %d: %d results.\n", Thread.currentThread().getName(), phaser.getPhase(), results.size());
             phaser.arriveAndAwaitAdvance();
             return true;
@@ -140,19 +140,18 @@ public class FileSearch implements Runnable {
     /**
      * Method that process a directory
      *
-     * @param file : Directory to process
+     * @param file : 待处理的目录
      */
     private void directoryProcess(File file) {
-
-        // Get the content of the directory
-        File list[] = file.listFiles();
+        // 获取目录的内容
+        File[] list = file.listFiles();
         if (list != null) {
             for (int i = 0; i < list.length; i++) {
                 if (list[i].isDirectory()) {
-                    // If is a directory, process it
+                    // 当前为文件夹则递归调用 directoryProcess() 方法
                     directoryProcess(list[i]);
                 } else {
-                    // If is a file, process it
+                    // 如果是文件则检查其扩展名
                     fileProcess(list[i]);
                 }
             }
@@ -160,9 +159,9 @@ public class FileSearch implements Runnable {
     }
 
     /**
-     * Method that process a File
+     * 检查文件扩展名，如果是要查找的就暂时存放在 results 对象中
      *
-     * @param file : File to process
+     * @param file : 待检查的文件
      */
     private void fileProcess(File file) {
         if (file.getName().endsWith(end)) {
