@@ -121,7 +121,7 @@ public class FileSearch implements Runnable {
     }
 
     /**
-     * Method that filter the results to delete the files modified more than a day before now
+     * 筛选结果，只保留今天修改过的文件
      */
     private void filterResults() {
         List<String> newResults = new ArrayList<>();
@@ -138,7 +138,7 @@ public class FileSearch implements Runnable {
     }
 
     /**
-     * Method that process a directory
+     * 获取一个文件夹里的所有文件及子文件夹，对于文件夹递归调用此方法，对于文件调用 fileProcess 方法处理
      *
      * @param file : 待处理的目录
      */
