@@ -28,7 +28,7 @@ public class FileSearch implements Runnable {
     private List<String> results;
 
     /**
-     * Phaser 对象用来同步多个 FileSearch 线程的查询操作，查询操作雰围三个阶段：
+     * Phaser 对象用来同步多个 FileSearch 线程的查询操作，查询操作分为三个阶段：
      * 1st: 在文件夹及其子文件夹中查找具有指定扩展名的文件
      * 2nd: 筛选结果，只保留今天修改过的文件
      * 3rd: 打印结果
@@ -89,14 +89,14 @@ public class FileSearch implements Runnable {
     }
 
     /**
-     * This method prints the final results of the search
+     * 打印最后的查询结果
      */
     private void showInfo() {
         for (int i = 0; i < results.size(); i++) {
             File file = new File(results.get(i));
             System.out.printf("%s: %s\n", Thread.currentThread().getName(), file.getAbsolutePath());
         }
-        // Waits for the end of all the FileSearch threads that are registered in the phaser
+        // 等待所有注册 Phaser 的 FileSearch 线程运行结束
         phaser.arriveAndAwaitAdvance();
     }
 
