@@ -59,6 +59,7 @@ public class Searcher implements Runnable {
     /**
      * 在指定的行中进行查找，对于每一列，将查询到的次数存储到results对象中的数组的相应位置
      */
+    @Override
     public void run() {
         int counter;
         System.out.printf("%s: Processing lines from %d to %d.\n", Thread.currentThread().getName(), firstRow, lastRow);
