@@ -22,6 +22,7 @@ public class Job implements Runnable {
     /**
      * 将打印任务发送到打印队列并等待完成
      */
+    @Override
     public void run() {
         System.out.printf("%s: Going to print a job\n", Thread.currentThread().getName());
         printQueue.printJob(new Object());

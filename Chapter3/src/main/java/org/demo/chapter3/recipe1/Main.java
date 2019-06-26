@@ -5,7 +5,12 @@ import org.demo.chapter3.recipe1.task.PrintQueue;
 
 /**
  * 资源的并发访问控制
- * 利用信号量Semaphore控制对资源的访问
+ * 利用信号量 Semaphore 控制对资源的访问
+ *
+ * <p>
+ *     实现一个打印队列，并发任务将使用它来完成打印。这个打印队列受二进制信号量保护，
+ *     因而同时只有一个线程可以执行打印
+ * </p>
  */
 public class Main {
 
