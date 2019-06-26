@@ -10,7 +10,7 @@ public class Participant implements Runnable {
     /**
      * 参会人员将参加的视频会议
      */
-    private Videoconference conference;
+    private VideoConference conference;
 
     /**
      * 参会人的姓名
@@ -23,7 +23,7 @@ public class Participant implements Runnable {
      * @param conference 参会人员将参加的视频会议
      * @param name       参会人的姓名
      */
-    public Participant(Videoconference conference, String name) {
+    public Participant(VideoConference conference, String name) {
         this.conference = conference;
         this.name = name;
     }
@@ -31,6 +31,7 @@ public class Participant implements Runnable {
     /**
      * 等待随机一段时间后加入视频会议
      */
+    @Override
     public void run() {
         Long duration = (long) (Math.random() * 10);
         try {

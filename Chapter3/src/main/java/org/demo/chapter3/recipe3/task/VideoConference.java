@@ -5,10 +5,10 @@ import java.util.concurrent.CountDownLatch;
 /**
  * 这个类模拟视频会议
  * <p>
- * 使用CountDownLatch控制所有的参会人员到齐后开始会议
+ *     使用 CountDownLatch 控制所有的参会人员到齐后开始会议
  * </p>
  */
-public class Videoconference implements Runnable {
+public class VideoConference implements Runnable {
 
     /**
      * 控制所有的参会人员到齐后开始会议
@@ -20,7 +20,7 @@ public class Videoconference implements Runnable {
      *
      * @param number 参会人数
      */
-    public Videoconference(int number) {
+    public VideoConference(int number) {
         controller = new CountDownLatch(number);
     }
 
@@ -39,6 +39,7 @@ public class Videoconference implements Runnable {
     /**
      * 等待所有参会人员，到齐后开始会议
      */
+    @Override
     public void run() {
         System.out.printf("VideoConference: Initialization: %d participants.\n", controller.getCount());
         try {
