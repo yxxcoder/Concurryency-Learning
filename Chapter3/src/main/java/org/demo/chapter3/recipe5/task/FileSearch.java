@@ -2,13 +2,12 @@ package org.demo.chapter3.recipe5.task;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.TimeUnit;
 
 /**
- * 在一个文件夹及其子件夹中查找过去24小时内修改过的指定扩展名的文件
+ * 在一个文件夹及其子件夹中查找过去 24 小时内修改过的指定扩展名的文件
  */
 public class FileSearch implements Runnable {
 
@@ -125,7 +124,7 @@ public class FileSearch implements Runnable {
      */
     private void filterResults() {
         List<String> newResults = new ArrayList<>();
-        long actualDate = new Date().getTime();
+        long actualDate = System.currentTimeMillis();
         for (int i = 0; i < results.size(); i++) {
             File file = new File(results.get(i));
             long fileDate = file.lastModified();

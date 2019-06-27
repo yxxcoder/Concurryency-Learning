@@ -1,10 +1,16 @@
 package org.demo.chapter3.recipe5;
 
 import org.demo.chapter3.recipe5.task.FileSearch;
+
 import java.util.concurrent.Phaser;
 
 /**
  * 并发阶段任务的运行
+ * 使用 Phaser 同步并发任务
+ * <p>
+ *     使用 Phaser 类同步三个并发任务。这三个任务将在三个不同的文件夹
+ *     及其子文件夹中查找过去 24 小时内修改过扩展名为 .log 的文件
+ * <p/>
  */
 public class Main {
 

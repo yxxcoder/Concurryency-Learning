@@ -297,9 +297,277 @@ CountDownLatch 类提供了另外一种`await()`方法，即`await(long time, Ti
 
 ## 4. 在集合点的同步
 
+Java并发API提供了 CyclicBarrier 类，它也是一个同步辅助类。它允许两个或者多个线程在某个点上进行同步。与 CountDownLatch 类类似
+
+CyclicBarrier 类使用一个整型数进行初始化，这个数是需要在某个点上同步的线程数。当一个线程到达指定的点后，它将调用`await()`方法等待其他的线程。当线程调用`await()`方法后，CyclicBarrier 类将阻塞这个线程并使之休眠直到所有其他线程到达。当最后一个线程调用 CyclicBarrier 类的 `await()`方法时， CyclicBarrier 对象将唤醒所有在等待的线程，然后这些线程将继续执行
+
+CyclicBarrier 可以传入另一个 Runnable 对象作为初始化参数。当所有的线程都到达集合点后，CyclicBarrier 类将这个Runnable对象作为线程执行。这个特性使得这个类在并行任务上可以媲美分治编程技术（Divide and Conquer Programming Technigue）
+
+
+
+范例中，将在数字矩阵中寻找一个数字（使用分治编程技术）。这个矩阵会被分成几个子集，然后每个线程在一个子集中查找。一旦所有线程都完成查找，最终的任务将统一这些结果
+
+```java
+public class Main {
+
+    /**
+     * 等待 5 个查询线程执行结束后执行汇总线程 grouper
+     */
+    public static void main(String[] args) {
+
+        /*
+         * 初始化二维数组
+         * 		10000 行
+         * 		1000 个数字每行
+         * 		查询数字 5
+         */
+        final int ROWS = 10000;
+        final int NUMBERS = 1000;
+        final int SEARCH = 5;
+        final int PARTICIPANTS = 5;
+        final int LINES_PARTICIPANT = 2000;
+        MatrixMock mock = new MatrixMock(ROWS, NUMBERS, SEARCH);
+
+        // 初始化结果对象 Results
+        Results results = new Results(ROWS);
+
+        // 初始化汇总线程
+        Grouper grouper = new Grouper(results);
+
+        // 创建CyclicBarrier对象，这个对象等待 5 个查询线程执行结束后执行汇总线程 grouper
+        CyclicBarrier barrier = new CyclicBarrier(PARTICIPANTS, grouper);
+
+        // 创建并启动 5 个查询线程
+        Searcher[] searchers = new Searcher[PARTICIPANTS];
+        for (int i = 0; i < PARTICIPANTS; i++) {
+            searchers[i] = new Searcher(i * LINES_PARTICIPANT, (i * LINES_PARTICIPANT) + LINES_PARTICIPANT, mock, results, 5, barrier);
+            Thread thread = new Thread(searchers[i]);
+            thread.start();
+        }
+        System.out.printf("Main: The main thread has finished.\n");
+    }
+}
+```
+
+
+
+CyclicBarrier 类还提供了另一种 `await()`方法：
+
+`await(long time, TimeUnit unit)`。这个方法被调用后，线程将一直休眠到被中断，或者 CyclicBarrier 的内部计数器到达 0，或者指定的时间已经过期。第二个参数是 TimeUnit 类型，它是一个常量枚举类型，它的值包含：DAYS、HOURS、MICROSECONDS、MILLISECONDS、MINUTES、NANOSECONDS 和 SECONDS
+
+CyclicBarrier 类还提供了 `getNumberWaiting()` 方法和 `getParties()` 方法，前者将返回在`await()`上阻塞的线程的数目，后者返回被 CyclicBarrier 对象同步的任务数
+
+**重置CyclicBarrier对象**
+
+虽然 CyclicBarrier 类和 CountDownLatch 类有很多共性，但是它们也有一定的差异。其中最重要的不同是，CyclicBarrier 对象可以被重置回初始状态，并把它的内部计数器重置成初始化时的值
+
+CyclicBarrier 对象的重置，是通过 CyclicBarrier 类提供的`reset()`方法完成的。当重置发生后，在`await()`方法中等待的线程将收到一个 BrokenBarrierException 异常。本例是将这个异常打印出来，但是在更复杂的应用程序中，它可以用来执行其他的操作，比如重新执行或者将操作复原回被中断时的状态
+
+**损坏的 CyclicBarrier 对象**
+
+CyclicBarrier 对象有一种特殊的状态即损坏状态（Broken）。当很多线程在`await()`方法上等待的时候，如果其中一个线程被中断，这个线程将抛出 InterruptedException 异常，其他的等待线程将抛 BrokenBarrierException 异常，于是 CyclicBarrier 对象就处于损坏状态了
+
+CyclicBarrier 类提供了`isBroken()`方法，如果处于损坏状态就返回true，否则返回false
+
 
 
 ## 5. 并发阶段任务的运行
+
+Java 并发 API 还提供了一个更复杂、更强大的同步辅助类，即 Phaser，它允许执行并发多阶段任务。当我们有并发任务并且需要分解成几步执行时，这种机制就非常适用。Phaser 类机制是在每一步结束的位置对线程进行同步，当所有的线程都完成了这一步，才允许执行下一步
+
+跟其他同步工具一样，必须对 Phaser 类中参与同步操作的任务数进行初始化，不同的是，我们可以动态地增加或者减少任务数
+
+
+
+范例中，将使用 Phaser 类同步三个并发任务。这三个任务将在三个不同的文件夹及其子文件夹中查找过去 24 小时内修改过扩展名为 .log 的文件。这个任务分成以下三个步骤：
+
+1. 在指定的文件夹及其子文件夹中获得扩展名为 .log 的文件
+
+2. 对第一步的结果进行过滤，删除修改时间超过24小时的文件
+
+3. 将结果打印到控制台
+
+在第一步和第二步结束的时候，都会检查所查找到的结果列表是不是有元素存在。如果结果列表是空的，对应的线程将结束执行，并且从phaser中删除
+
+```java
+/**
+ * 在一个文件夹及其子件夹中查找过去 24 小时内修改过的指定扩展名的文件
+ */
+public class FileSearch implements Runnable {
+
+    /**
+     * 查找的文件夹路径
+     */
+    private String initPath;
+
+    /**
+     * 查找的文件的扩展名
+     */
+    private String end;
+
+    /**
+     * 存储查找到的文件的完整路径
+     */
+    private List<String> results;
+
+    /**
+     * Phaser 对象用来同步多个 FileSearch 线程的查询操作，查询操作分为三个阶段：
+     * 1st: 在文件夹及其子文件夹中查找具有指定扩展名的文件
+     * 2nd: 筛选结果，只保留今天修改过的文件
+     * 3rd: 打印结果
+     */
+    private Phaser phaser;
+
+
+    /**
+     * 初始化对象
+     *
+     * @param initPath 查找的文件夹路径
+     * @param end      查找的文件的扩展名
+     * @param phaser   用于同步的 Phaser 对象
+     */
+    public FileSearch(String initPath, String end, Phaser phaser) {
+        this.initPath = initPath;
+        this.end = end;
+        this.phaser = phaser;
+        results = new ArrayList<>();
+    }
+
+    /**
+     * 查找文件，并利用 Phaser 同步多个 FileSearch 线程的并发操作
+     */
+    @Override
+    public void run() {
+
+        // 等待所有 FileSearch 线程被创建后再执行
+        phaser.arriveAndAwaitAdvance();
+
+        System.out.printf("%s: Starting.\n", Thread.currentThread().getName());
+
+        // 1st Phase: 在文件夹及其子文件夹中查找具有指定扩展名的文件
+        File file = new File(initPath);
+        if (file.isDirectory()) {
+            directoryProcess(file);
+        }
+
+        // 如果当前线程没有结果，则取消对 Phaser 的注册，结束任务
+        if (!checkResults()) {
+            return;
+        }
+
+        // 2nd Phase: 筛选结果，只保留今天修改过的文件
+        filterResults();
+
+        // 筛选结果后，如果当前线程没有结果则取消对 Phaser 的注册，结束任务
+        if (!checkResults()) {
+            return;
+        }
+
+        // 3rd Phase: 打印查询结果
+        showInfo();
+        // 取消对 Phaser 的注册，结束任务
+        phaser.arriveAndDeregister();
+        System.out.printf("%s: Work completed.\n", Thread.currentThread().getName());
+    }
+
+    /**
+     * 打印最后的查询结果
+     */
+    private void showInfo() {
+        for (int i = 0; i < results.size(); i++) {
+            File file = new File(results.get(i));
+            System.out.printf("%s: %s\n", Thread.currentThread().getName(), file.getAbsolutePath());
+        }
+        // 等待所有注册 Phaser 的 FileSearch 线程运行结束
+        phaser.arriveAndAwaitAdvance();
+    }
+
+    /**
+     * 检查当前线程在 1st 阶段执行后是否有结果。如果当前线程没有结果，则取消对 Phaser 的注册
+     *
+     * @return 有结果返回 true，没有则为 false
+     */
+    private boolean checkResults() {
+        if (results.isEmpty()) {
+            System.out.printf("%s: Phase %d: 0 results.\n", Thread.currentThread().getName(), phaser.getPhase());
+            System.out.printf("%s: Phase %d: End.\n", Thread.currentThread().getName(), phaser.getPhase());
+            // 没有结果， 通知 Phase 对象当前线程已经结束这个阶段，并且将不在参与接下来的阶段操作，取消对 Phaser 注册
+            phaser.arriveAndDeregister();
+            return false;
+        } else {
+            // 当前线程有结果的话，同步各线程等待进入下一阶段
+            System.out.printf("%s: Phase %d: %d results.\n", Thread.currentThread().getName(), phaser.getPhase(), results.size());
+            phaser.arriveAndAwaitAdvance();
+            return true;
+        }
+    }
+
+    /**
+     * 筛选结果，只保留今天修改过的文件
+     */
+    private void filterResults() {
+        List<String> newResults = new ArrayList<>();
+        long actualDate = System.currentTimeMillis();
+        for (int i = 0; i < results.size(); i++) {
+            File file = new File(results.get(i));
+            long fileDate = file.lastModified();
+
+            if (actualDate - fileDate < TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS)) {
+                newResults.add(results.get(i));
+            }
+        }
+        results = newResults;
+    }
+
+    /**
+     * 获取一个文件夹里的所有文件及子文件夹，对于文件夹递归调用此方法，对于文件调用 fileProcess 方法处理
+     *
+     * @param file : 待处理的目录
+     */
+    private void directoryProcess(File file) {
+        // 获取目录的内容
+        File[] list = file.listFiles();
+        if (list != null) {
+            for (int i = 0; i < list.length; i++) {
+                if (list[i].isDirectory()) {
+                    // 当前为文件夹则递归调用 directoryProcess() 方法
+                    directoryProcess(list[i]);
+                } else {
+                    // 如果是文件则检查其扩展名
+                    fileProcess(list[i]);
+                }
+            }
+        }
+    }
+
+    /**
+     * 检查文件扩展名，如果是要查找的就暂时存放在 results 对象中
+     *
+     * @param file : 待检查的文件
+     */
+    private void fileProcess(File file) {
+        if (file.getName().endsWith(end)) {
+            results.add(file.getAbsolutePath());
+        }
+    }
+}
+```
+
+
+
+一个Phaser对象有两种状态
+
+- 活跃态（Active）：当存在参与同步的线程的时候，Phaser 就是活跃的，并且在每个阶段结束的时候进行同步
+
+- 终止态（Termination）：当所有参与同步的线程都取消注册的时候，Phaser 就处于终止状态，在这种状态下，Phaser 没有任何参与者。更具体地说，当Phaser 对象的`onAdvance()`方法返回 true 的时候，Phaser 对象就处于了终止态。通过覆盖这个方法可以改变默认的行为。当 Phaser 是终止态的时候，同步方法`arriveAndAwaitAdvance()`会立即返回，而且不会做任何同步的操作
+
+Phaser类的一个重大特性就是不必对它的方法进行异常处理。不像其他的同步辅助类，被 Phaser 类置于休眠的线程不会响应中断事件，也不会抛出 InterruptedException 异常（只有一种特例会抛出异常，参见之后的部分）
+
+
+
+Phaser类提供了一些其他改变 Phaser 对象的方法：
+
+
 
 
 
