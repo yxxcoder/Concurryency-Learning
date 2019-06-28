@@ -567,7 +567,28 @@ Phaser类的一个重大特性就是不必对它的方法进行异常处理。�
 
 Phaser类提供了一些其他改变 Phaser 对象的方法：
 
+- `arrive()`：这个方法通知 phaser 对象一个参与者已经完成了当前阶段，但是它不应该等待其他参与者都完成当前阶段。必须小心使用这个方法，因为它不会与其他线程同步
+- `awaitAdvance(int phase)`：如果传入的阶段参数与当前阶段一致，这个方法会将当前线程置于休眠，直到这个阶段的所有参与者都运行完成。如果传入的阶段参数与当前阶段不一致，这个方法将立即返回
+- `awaitAdvanceInterruptibly(int phaser)`：这个方法跟`awaitAdvance(int phase)`一样，不同之处是，如果在这个方法中休眠的线程被中断，它将抛出 InterruptedException 异常
 
+
+
+**将参与者注册到 Phaser 中**
+
+创建一个 Phaser 对象时，需要指出有多少个参与者。Phaser 类提供了两种方法增加注册者的数量，这些方法如下：
+
+- `register()`：这个方法将一个新的参与者注册到 Phaser 中，这个新的参与者将被当成没有执完本阶段的线程
+- `bulkRegister(int Parties)`：这个方法将指定数目的参与者注册到Phaser中，所有这些新的参与者都将被当成没有执完本阶段的线程
+
+Phaser 类只提供了一种方法减少注册者的数目，即 `arriveAndDeregister( )`方法。它通知phaser对象对应的线程已经完成了当前阶段，并且它不会参与到下一个阶段的操作中
+
+
+
+**强制终止Phaser**
+
+当一个phaser 对象没有参与线程的时候，它就处于终止状态。Phaser 类提供了`forceTermination()`方法来强制 phaser 进入终止态，这个方法不管 phaser 中是否存在注册的参与线程。当一个参与线程产生错误的时候，强制 phaser 终止是很有意义的
+
+当一个 phaser 处于终止态的时候，`awaitAdvance()`和`arriveAndAwaitAdvance()`方法立即返回一个负数，而不再是一个正值了。如果知道phaser可能会被终止，就需要验证这些方法的返回值，以确定phaser是不是被终止了
 
 
 
