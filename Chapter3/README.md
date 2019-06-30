@@ -594,6 +594,93 @@ Phaser 类只提供了一种方法减少注册者的数目，即 `arriveAndDereg
 
 ## 6. 并发阶段任务中的阶段切换
 
+Phaser 类提供了`onAdvance()`方法， 在 phaser 阶段改变的时候会被自动执行。`onAdvance()`方法需要两个 int  型的传入参数：当前的阶段数以及注册的参与者数量。返回的是 boolean 值，如果返回 false 表示 phaser 在继续执行，返回 true 表示 phaser 已经完成执行并且进入了终止态
+
+这个方法默认实现如下：如果注册的参与者数量是 0 就返回 true，否则就返回 false。但是可以通过继承 Phaser 类覆盖这个方法。一般来说，当必须在从一个阶段到另一个阶段过渡的时候执行一些操作，那么就要这样做
+
+
+
+范例将演示如何控制 phaser 中的阶段改变。范例将实现自己的Phaser类，并且覆盖`onAdvance()`方法在每个阶段改变的时候执行一些操作。范例模拟考试，考生必须做三道试题，只有当所有学生都完成一道试题的时候， 才能继续下一个
+
+```java
+/**
+ * 创建 MyPhaser 类并继承 Phaser
+ */
+public class MyPhaser extends Phaser {
+
+    /**
+     * phaser 对象进行阶段切换的时候，在所有在 arriveAndAwaitAdvance() 方法里休眠的线程被唤醒之前，onAdvance() 方法将被自动调用
+     *
+     * @param phase             当前阶段序号
+     * @param registeredParties 注册线程的数量
+     * @return 返回 false 表示 phase 在继续进行，返回 true 表示 phase 已经完成执行并进入了终止态
+     */
+    @Override
+    protected boolean onAdvance(int phase, int registeredParties) {
+        switch (phase) {
+            case 0:
+                return studentsArrived();
+            case 1:
+                return finishFirstExercise();
+            case 2:
+                return finishSecondExercise();
+            case 3:
+                return finishExam();
+            default:
+                return true;
+        }
+    }
+
+    /**
+     * phase 0 至 1 阶段间调用
+     *
+     * @return 返回false表明 phaser 在继续执行中。
+     */
+    private boolean studentsArrived() {
+        System.out.printf("Phaser: The exam are going to start. The students are ready.\n");
+        System.out.printf("Phaser: We have %d students.\n", getRegisteredParties());
+        return false;
+    }
+
+    /**
+     * phase 1 至 2 阶段间调用
+     *
+     * @return 返回false表明 phaser 在继续执行中。
+     */
+    private boolean finishFirstExercise() {
+        System.out.printf("Phaser: All the students has finished the first exercise.\n");
+        System.out.printf("Phaser: It's turn for the second one.\n");
+        return false;
+    }
+
+    /**
+     * phase 2 至 3 阶段间调用
+     *
+     * @return 返回false表明 phaser 在继续执行中。
+     */
+    private boolean finishSecondExercise() {
+        System.out.printf("Phaser: All the students has finished the second exercise.\n");
+        System.out.printf("Phaser: It's turn for the third one.\n");
+        return false;
+    }
+
+    /**
+     * phase 3 至 4 阶段间调用
+     *
+     * @return 返回false表明 phaser 在继续执行中。
+     */
+    private boolean finishExam() {
+        System.out.printf("Phaser: All the students has finished the exam.\n");
+        System.out.printf("Phaser: Thank you for your time.\n");
+        return true;
+    }
+}
+```
+
+
+
+在主类中，创建 MyPhaser 对象时，并没有指定 phaser 的参与者数目，但是每个学生对象都调用了 phaser 的`register()`方法，这将在 phaser 中注册。这个调用并没有建立学生对象或者它对应的执行线程与 phaser 之间的关联。实际上，phaser中的参与者数目只是一个数字，phaser 与参与者不存在任何关联
+
 
 
 ## 7. 并发任务间的数据交换
