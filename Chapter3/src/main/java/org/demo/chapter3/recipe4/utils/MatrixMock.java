@@ -16,7 +16,7 @@ public class MatrixMock {
      * 传入矩阵行数，每行的长度，要寻找的数字，生成二维数组
      * 在生成数组时，同时记录下待寻找的数字在数组中的个数，用于检查查询线程是否得到正确的结果
      *
-     * @param size 数组的行数
+     * @param size   数组的行数
      * @param length 数组的列数
      * @param number 要寻找的数字
      */
