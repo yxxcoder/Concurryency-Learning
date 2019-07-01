@@ -6,6 +6,10 @@ import org.demo.chapter3.recipe6.task.Student;
 
 /**
  * 并发阶段任务中的阶段切换
+ * 重写 Phaser 的 onAdvance() 方法实现并发任务的阶段同步
+ * <p>
+ *     实现自己的 Phaser 类，并且覆盖 onAdvance() 方法在每个阶段改变的时候执行一些操作
+ * </p>
  */
 public class Main {
 

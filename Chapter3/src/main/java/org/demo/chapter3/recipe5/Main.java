@@ -10,7 +10,7 @@ import java.util.concurrent.Phaser;
  * <p>
  *     使用 Phaser 类同步三个并发任务。这三个任务将在三个不同的文件夹
  *     及其子文件夹中查找过去 24 小时内修改过扩展名为 .log 的文件
- * <p/>
+ * </p>
  */
 public class Main {
 

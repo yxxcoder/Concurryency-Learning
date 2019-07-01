@@ -11,6 +11,9 @@ import java.util.concurrent.Exchanger;
 /**
  * 并发任务间的数据交换
  * Exchanger 允许在两个线程之间定义同步点，当两个线程都到达同步点时，交换数据结构
+ * <p>
+ *     解决一对一的生产者消费者问题
+ * </p>
  */
 public class Main {
 

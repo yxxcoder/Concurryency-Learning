@@ -13,7 +13,7 @@ import java.util.concurrent.CyclicBarrier;
  * <p>
  *     将在数字矩阵中寻找一个数字（使用分治编程技术）。这个矩阵会被分成几个子集，然后
  *     每个线程在一个子集中查找。一旦所有线程都完成查找，最终的任务将统一这些结果
- * <p/>
+ * </p>
  */
 public class Main {
 
