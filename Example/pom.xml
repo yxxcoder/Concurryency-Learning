@@ -2,18 +2,18 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>concurryency-learning</artifactId>
+        <groupId>org.demo</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.demo</groupId>
-    <artifactId>concurryency-learning</artifactId>
+    <artifactId>Example</artifactId>
     <packaging>pom</packaging>
-    <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>Chapter1</module>
-        <module>Chapter2</module>
-        <module>Chapter3</module>
-        <module>Chapter4</module>
-        <module>Example</module>
+        <module>producer-consumer</module>
     </modules>
+
 
 </project>
