@@ -24,31 +24,17 @@ public class BlockingQueueModel implements Model {
         this.queue = new LinkedBlockingQueue<>(cap);
     }
 
-    public static void main(String[] args) {
-        Model model = new BlockingQueueModel(3);
-        for (int i = 0; i < 2; i++) {
-            new Thread(model.newRunnableConsumer()).start();
-        }
-
-        for (int i = 0; i < 5; i++) {
-            new Thread(model.newRunnableProducer()).start();
-        }
-    }
-
     @Override
-
     public Runnable newRunnableConsumer() {
         return new ConsumerImpl();
     }
 
     @Override
-
     public Runnable newRunnableProducer() {
         return new ProducerImpl();
     }
 
     private class ConsumerImpl extends AbstractConsumer implements Consumer, Runnable {
-
         @Override
         public void consume() throws InterruptedException {
             Task task = queue.take();
@@ -59,7 +45,6 @@ public class BlockingQueueModel implements Model {
     }
 
     private class ProducerImpl extends AbstractProducer implements Producer, Runnable {
-
         @Override
         public void produce() throws InterruptedException {
             // 不定期生产，模拟随机的用户请求
@@ -67,6 +52,17 @@ public class BlockingQueueModel implements Model {
             Task task = new Task(increTaskNo.getAndIncrement());
             queue.put(task);
             System.out.println("produce: " + task.no);
+        }
+    }
+
+    public static void main(String[] args) {
+        Model model = new BlockingQueueModel(3);
+        for (int i = 0; i < 2; i++) {
+            new Thread(model.newRunnableConsumer()).start();
+        }
+
+        for (int i = 0; i < 5; i++) {
+            new Thread(model.newRunnableProducer()).start();
         }
     }
 }
